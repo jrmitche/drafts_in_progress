@@ -49,6 +49,7 @@
     </author>
     <date year="2014"/>
     <area>Routing</area>
+	<workgroup>Routing Area Working Group</workgroup>
     <keyword>Internet Draft</keyword>
     <keyword>BGP</keyword>
     <keyword>ECMP</keyword>
