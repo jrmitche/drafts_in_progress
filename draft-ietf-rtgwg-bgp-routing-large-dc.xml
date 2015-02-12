@@ -4,7 +4,7 @@
 <?rfc compact="yes"?>
 <?rfc subcompact="no"?>
 <?rfc symrefs="yes" ?>
-<rfc category="info" ipr="trust200902" docName="draft-ietf-rtgwg-bgp-routing-large-dc-00" obsoletes="" updates="" submissionType="IETF" xml:lang="en">
+<rfc category="info" ipr="trust200902" docName="draft-ietf-rtgwg-bgp-routing-large-dc-01" obsoletes="" updates="" submissionType="IETF" xml:lang="en">
   <front>
     <title abbrev="draft-ietf-rtgwg-bgp-routing-large-dc">Use of BGP for routing in large-scale data centers</title>
     <author initials="P." surname="Lapukhov" fullname="Petr Lapukhov">
@@ -47,7 +47,7 @@
         <email>Jon.Mitchell@microsoft.com</email>
       </address>
     </author>
-    <date year="2014"/>
+    <date year="2015"/>
     <area>Routing</area>
 	<workgroup>Routing Area Working Group</workgroup>
     <keyword>Internet Draft</keyword>
@@ -430,10 +430,10 @@
           <t>
             <list style="symbols">
               <t>
-                Hide network topology information when advertising paths to WAN routers, i.e. remove Private BGP ASNs from the AS_PATH attribute. This is typically done to avoid ASN number collisions between different data centers. An implementation specific BGP feature typically called "Remove Private AS" is commonly used to accomplish this. Depending on implementation, the feature should strip a contiguous sequence of private ASNs found in AS_PATH attribute prior to advertising the path to a neighbor. This assumes that all BGP ASN's used for intra data center numbering are from the private ASN range. The process for stripping the private ASNs is not currently standardized, but most implementations commonly follow the logic described in <xref target="REMOVE-PRIVATE-AS"/> vendor's document.
+                Hide network topology information when advertising paths to WAN routers, i.e. remove Private BGP ASNs from the AS_PATH attribute. This is typically done to avoid ASN number collisions between different data centers and also to provide a uniform AS_PATH length to the WAN for purposes of WAN ECMP to Anycast prefixes originated in the topology. An implementation specific BGP feature typically called "Remove Private AS" is commonly used to accomplish this. Depending on implementation, the feature should strip a contiguous sequence of private ASNs found in AS_PATH attribute prior to advertising the path to a neighbor. This assumes that all BGP ASN's used for intra data center numbering are from the private ASN range. The process for stripping the private ASNs is not currently standardized, but most implementations commonly follow the logic described in <xref target="REMOVE-PRIVATE-AS"/> vendor's document.
               </t>
               <t>
-                Originate a default route to the data center devices. This is the only place where default route can be originated, as route summarization is risky for the "scale-out" topology. Alternatively, Border Routers may simply relay the default route learned from WAN routers. Advertising the default route from Border Routers requires that all Border Routers to be fully connected to the WAN Routers upstream, to provide resistance to a single-link failure causing the black holing of traffic. To prevent chance of operator or implementation error that may impact EBGP sessions to the WAN routers simultaneously (although these scenarios are not planned for by many operators since they represents a multiple failure) it is more desirable to take this approach rather than introducing complicated conditional default origination schemes provided by some implementations.
+                Originate a default route to the data center devices. This is the only place where default route can be originated, as route summarization is risky for the "scale-out" topology. Alternatively, Border Routers may simply relay the default route learned from WAN routers. Advertising the default route from Border Routers requires that all Border Routers to be fully connected to the WAN Routers upstream, to provide resistance to a single-link failure causing the black-holing of traffic. To prevent chance of operator or implementation error that may impact EBGP sessions to the WAN routers simultaneously (although these scenarios are not planned for by many operators since they represents a multiple failure) it is more desirable to take this approach rather than introducing complicated conditional default origination schemes provided by some implementations.
               </t>
             </list>
           </t>
@@ -589,6 +589,9 @@
         <t>
           As mentioned previously, route summarization is not possible within the proposed Clos topology since it makes the network susceptible to route black-holing under single link failures. The main problem is the limited number of parallel paths between network elements, e.g. there is only a single path between any pair of Tier-1 and Tier-3 devices. However, some operators may find route aggregation desirable to improve control plane stability.
         </t>
+		<t>
+		  If planning on using any technique to summarize within the topology modeling of the routing behavior and potential for black-holing should be done not only for single or multiple link failures, but also fiber pathway failures or optical domain failures if the topology extends beyond a physical location.  Simple modeling can be done by checking the reachability on devices doing summarization under the condition of a link or pathway failure between a set of devices in every Tier as well as to the WAN routers if external connectivity is present.
+		</t>
         <t>
           Route summarization would be possible with a small modification to the network topology, though the trade-off would be reduction of the total size of the network as well as network congestion under specific failures. This approach is very similar to the technique described above, which allows Border Routers to summarize the entire data-center address space.
         </t>
@@ -752,7 +755,7 @@
         <front>
           <title>Autonomous System (AS) Numbers</title>
           <author surname="IANA" fullname="IANA"><organization/></author>
-          <date month="August" year="2014"/>
+          <date month="February" year="2015"/>
         </front>
       </reference>
       <reference anchor="IEEE8023AD" target="">
