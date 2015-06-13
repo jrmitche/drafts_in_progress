@@ -63,16 +63,16 @@
   <middle>
     <section title="Introduction" anchor="intro" toc="default">
       <t>
-        This document describes a practical routing design that can be used in a large-scale data center ("DC") design. Such data centers, also known as hyper-scale or warehouse-scale data-centers, have a unique attribute of supporting over a hundred thousand servers. In order to accommodate networks of this scale, operators are revisiting networking designs and platforms to address this need.
+        This document describes a practical routing design that can be used in a large-scale data center ("DC") design. Such data centers, also known as hyper-scale or warehouse-scale data centers, have a unique attribute of supporting over a hundred thousand servers. In order to accommodate networks of this scale, operators are revisiting networking designs and platforms to address this need.
       </t>
       <t>
-        The design presented in this document is based on operational experience with data centers built to support large scale distributed software infrastructure, such as a Web search engine. The primary requirements in such an environment are operational simplicity and network stability so that a small group of people can effectively support a significantly sized network.
+        The design presented in this document is based on operational experience with data centers built to support large-scale distributed software infrastructure, such as a Web search engine. The primary requirements in such an environment are operational simplicity and network stability so that a small group of people can effectively support a significantly sized network.
       </t>
       <t>
         After experimentation and extensive testing, Microsoft chose to use an end-to-end routed network infrastructure with <xref target="RFC4271">External BGP (EBGP)</xref> as the only routing protocol for some of its DC deployments. This is in contrast with more traditional DC designs, which may use simple tree topologies and rely on extending Layer 2 domains across multiple network devices. This document elaborates on the requirements that led to this design choice and presents details of the EBGP routing design as well as explores ideas for further enhancements.
       </t>
       <t>
-        This document first presents an overview of network design requirements and considerations for large-scale data centers. Then traditional hierarchical data center network topologies are contrasted with Clos networks that are horizontally scaled out. This is followed by arguments for selecting EBGP with a Clos topology as the most appropriate routing protocol to meet the requirements and the proposed design is described in detail. Finally, the document reviews some additional considerations and design options.
+        This document first presents an overview of network design requirements and considerations for large-scale data centers. Then traditional hierarchical data center network topologies are contrasted with <xref target="CLOS1953">Clos networks</xref> that are horizontally scaled out. This is followed by arguments for selecting EBGP with a Clos topology as the most appropriate routing protocol to meet the requirements and the proposed design is described in detail. Finally, the document reviews some additional considerations and design options.
       </t>
     </section>
     <section title="Network Design Requirements" toc="default">
@@ -81,15 +81,15 @@
       </t>
       <section title="Bandwidth and Traffic Patterns" toc="default">
         <t>
-          The primary requirement when building an interconnection network for large number of servers is to accommodate application bandwidth and latency requirements. Until recently it was quite common to see the majority of traffic entering and leaving the data center, commonly referred to as "north-south" traffic. As a result, traditional "tree" topologies were sufficient to accommodate such flows, even with high oversubscription ratios between the layers of the network. If more bandwidth was required, it was added by "scaling up" the network elements, e.g. by upgrading the device's line-cards or fabrics or replacing the device with one with higher port density.
+          The primary requirement when building an interconnection network for large number of servers is to accommodate application bandwidth and latency requirements. Until recently it was quite common to see the majority of traffic entering and leaving the data center, commonly referred to as "north-south" traffic. As a result, traditional "tree" topologies were sufficient to accommodate such flows, even with high oversubscription ratios between the layers of the network. If more bandwidth was required, it was added by "scaling up" the network elements, e.g. by upgrading the device's linecards or fabrics or replacing the device with one with higher port density.
         </t>
         <t>
-          Today many large-scale data centers host applications generating significant amounts of server-to-server traffic, which does not egress the DC, commonly referred to as "east-west" traffic. Examples of such applications could be compute clusters such as Hadoop, massive data replication between clusters needed by certain applications, or virtual machine migrations. Scaling traditional tree topologies to match these bandwidth demands becomes either too expensive or impossible due to physical limitations, e.g. port density in a switch.
+          Today many large-scale data centers host applications generating significant amounts of server-to-server traffic, which does not egress the DC, commonly referred to as "east-west" traffic. Examples of such applications could be compute clusters such as <xref target="HADOOP">Hadoop</xref>, massive data replication between clusters needed by certain applications, or virtual machine migrations. Scaling traditional tree topologies to match these bandwidth demands becomes either too expensive or impossible due to physical limitations, e.g. port density in a switch.
         </t>
       </section>
       <section title="CAPEX Minimization" toc="default">
         <t>
-          The cost of the network infrastructure alone (CAPEX) constitutes about 10-15% of total data center expenditure (see <xref target="GREENBERG2009" pageno="false" format="default" />). However, the absolute cost is significant, and hence there is a need to constantly drive down the cost of individual network elements. This can be accomplished in two ways:
+          The Capital Expenditures (CAPEX) associated with the network infrastructure alone constitutes about 10-15% of total data center expenditure (see <xref target="GREENBERG2009" pageno="false" format="default" />). However, the absolute cost is significant, and hence there is a need to constantly drive down the cost of individual network elements. This can be accomplished in two ways:
         </t>
         <t>
           <list style="symbols">
@@ -107,15 +107,15 @@
       </section>
       <section title="OPEX Minimization" toc="default">
         <t>
-          Operating large-scale infrastructure could be expensive, provided that larger amount of elements will statistically fail more often. Having a simpler design and operating using a limited software feature-set minimizes software issue related failures.
+          Operating large-scale infrastructure could be expensive, provided that a larger amount of elements will statistically fail more often. Having a simpler design and operating using a limited software feature set minimizes software issue-related failures.
         </t>
         <t>
-          An important aspect of OPEX minimization is reducing size of failure domains in the network. Ethernet networks are known to be susceptible to broadcast or unicast traffic storms that have dramatic impact on network performance and availability. The use of a fully routed design significantly reduces the size of the data-plane failure domains - i.e. limits them to the lowest level in the network hierarchy. However, such designs introduce the problem of distributed control-plane failures. This observation calls for simpler control-plane protocols that are expected to have less chances of network meltdown.  Minimizing software feature requirements as described in the CAPEX section above also reduces testing and training requirements.
+          An important aspect of Operational Expenditure (OPEX) minimization is reducing size of failure domains in the network. Ethernet networks are known to be susceptible to broadcast or unicast traffic storms that can have a dramatic impact on network performance and availability. The use of a fully routed design significantly reduces the size of the data plane failure domains - i.e. limits them to the lowest level in the network hierarchy. However, such designs introduce the problem of distributed control plane failures. This observation calls for simpler control plane protocols that are expected to have less chances of network meltdown.  Minimizing software feature requirements as described in the CAPEX section above also reduces testing and training requirements.
         </t>
       </section>
       <section title="Traffic Engineering" toc="default">
         <t>
-          In any data center, application load-balancing is a critical function performed by network devices. Traditionally, load-balancers are deployed as dedicated devices in the traffic forwarding path. The problem arises in scaling load-balancers under growing traffic demand. A preferable solution would be able to scale load-balancing layer horizontally, by adding more of the uniform nodes and distributing incoming traffic across these nodes. In situation like this, an ideal choice would be to use network infrastructure itself to distribute traffic across a group of load-balancers. The combination of Anycast prefix advertisement <xref target="RFC4786" /> and Equal Cost Multipath (ECMP) functionality can be used to accomplish this goal. To allow for more granular load-distribution, it is beneficial for the network to support the ability to perform controlled per-hop traffic engineering. For example, it is beneficial to directly control the ECMP next-hop set for Anycast prefixes at every level of network hierarchy.
+          In any data center, application load balancing is a critical function performed by network devices. Traditionally, load balancers are deployed as dedicated devices in the traffic forwarding path. The problem arises in scaling load balancers under growing traffic demand. A preferable solution would be able to scale load balancing layer horizontally, by adding more of the uniform nodes and distributing incoming traffic across these nodes. In situation like this, an ideal choice would be to use network infrastructure itself to distribute traffic across a group of load balancers. The combination of Anycast prefix advertisement <xref target="RFC4786" /> and Equal Cost Multipath (ECMP) functionality can be used to accomplish this goal. To allow for more granular load distribution, it is beneficial for the network to support the ability to perform controlled per-hop traffic engineering. For example, it is beneficial to directly control the ECMP next-hop set for Anycast prefixes at every level of network hierarchy.
         </t>
       </section>
       <section title="Summarized Requirements" toc="default">
@@ -135,7 +135,7 @@
       <t>This section provides an overview of two general types of data center designs - hierarchical (also known as tree based) and Clos based network designs.</t>
       <section title="Traditional DC Topology" anchor="traditional-topo" toc="default">
         <t>
-          In the networking industry, a common design choice for data centers typically look like a (upside-down) tree with redundant uplinks and three layers of hierarchy namely core, aggregation/distribution and access layers (see <xref target="typical-dc" pageno="false" format="default"></xref>). To accommodate bandwidth demands, each higher layer, from server towards DC egress or WAN, has higher port density and bandwidth capacity where the core functions as the "trunk" of the tree based design. To keep terminology uniform and for comparison with other designs, in this document these layers will be referred to as Tier-1, Tier-2 and Tier-3 "tiers" instead of Core, Aggregation or Access layers.
+          In the networking industry, a common design choice for data centers typically look like a (upside down) tree with redundant uplinks and three layers of hierarchy namely; core, aggregation/distribution and access layers (see <xref target="typical-dc" pageno="false" format="default"></xref>). To accommodate bandwidth demands, each higher layer, from server towards DC egress or WAN, has higher port density and bandwidth capacity where the core functions as the "trunk" of the tree based design. To keep terminology uniform and for comparison with other designs, in this document these layers will be referred to as Tier-1, Tier-2 and Tier-3 "tiers", instead of Core, Aggregation or Access layers.
         </t>
         <figure title="Typical DC network topology" anchor="typical-dc" suppress-title="false" align="left" alt="" width="" height="">
           <artwork xml:space="preserve" name="" type="" align="left" alt="" width="" height="">                                                 
@@ -164,7 +164,7 @@
         </figure>
       </section>
       <section title="Clos Network topology" anchor="clos-topo" toc="default">
-        <t>This section describes a common design for horizontally scalable topology in large scale data centers in order to meet REQ1.</t>
+        <t>This section describes a common design for horizontally scalable topology in large-scale data centers in order to meet REQ1.</t>
         <section title="Overview" toc="default">
           <t>
             A common choice for a horizontally scalable topology is a folded Clos topology, sometimes called "fat-tree" (see, for example, <xref target="INTERCON" pageno="false" format="default" /> and <xref target="ALFARES2008" pageno="false" format="default"/>). This topology features an odd number of stages (sometimes known as dimensions) and is commonly made of uniform elements, e.g. network switches with the same port count. Therefore, the choice of folded Clos topology satisfies REQ1 and facilitates REQ2. See <xref target="three-stage-clos" pageno="false" format="default" /> below for an example of a folded 3-stage Clos topology (3 stages counting Tier-2 stage twice, when tracing a packet flow):
@@ -210,13 +210,13 @@
                 The topology is fully non-blocking (or more accurately: non-interfering) if M &gt;= N and oversubscribed by a factor of N/M otherwise. Here M and N is the uplink and downlink port count respectively, for a Tier-2 switch as shown in <xref target="three-stage-clos" pageno="false" format="default" />.
               </t>
               <t>
-                Utilizing this topology requires control and data plane supporting ECMP with the fan-out of M or more.
+                Utilizing this topology requires control and data plane support for ECMP with a fan-out of M or more.
               </t>
               <t>
                 Tier-1 switches have exactly one path to every server in this topology. This is an important property that makes route summarization impossible in this topology (see <xref target="adding-route-summarization" /> below).
               </t>
               <t>
-                Traffic flowing from server to server is load-balanced over all available paths using ECMP.
+                Traffic flowing from server to server is load balanced over all available paths using ECMP.
               </t>
             </list>
           </t>
@@ -262,10 +262,10 @@
         </section>
         <section title="Managing the Size of Clos Topology Tiers" toc="default">
           <t>
-            If a data-center network size is small, it is possible to reduce the number of switches in Tier-1 or Tier-2 of Clos topology by a power of two. To understand how this could be done, take Tier-1 as an example. Every Tier-2 device connects to a single group of Tier-1 devices. If half of the ports on each of the Tier-1 devices are not being used then it is possible to reduce the number of Tier-1 devices by half and simply map two uplinks from a Tier-2 device to the same Tier-1 device that were previously mapped to different Tier-1 devices. This technique maintains the same bisectional bandwidth while reducing the number of elements in the Tier-1 layer, thus saving on CAPEX. The tradeoff, in this example, is the reduction of maximum DC size in terms of overall server count by half.
+            If a data center network size is small, it is possible to reduce the number of switches in Tier-1 or Tier-2 of Clos topology by a power of two. To understand how this could be done, take Tier-1 as an example. Every Tier-2 device connects to a single group of Tier-1 devices. If half of the ports on each of the Tier-1 devices are not being used then it is possible to reduce the number of Tier-1 devices by half and simply map two uplinks from a Tier-2 device to the same Tier-1 device that were previously mapped to different Tier-1 devices. This technique maintains the same bisectional bandwidth while reducing the number of elements in the Tier-1 layer, thus saving on CAPEX. The tradeoff, in this example, is the reduction of maximum DC size in terms of overall server count by half.
           </t>
           <t>
-            In this example, Tier-2 devices will be using two parallel links to connect to each Tier-1 device. If one of these links fails, the other will pick up all traffic of the failed link, possible resulting in heavy congestion and quality of service degradation if the path determination procedure, does not take bandwidth amount into account. To avoid this situation, parallel links can be grouped in link aggregation groups (LAGs, such as <xref target="IEEE8023AD"/>) with widely available implementation settings that take the whole "bundle" down upon a single link failure. Equivalent techniques that enforce "fate sharing" on the parallel links can be used in place of LAGs to achieve the same effect. As a result of such fate-sharing, traffic from two or more failed links will be re-balanced over the multitude of remaining paths that equals the number of Tier-1 devices. This example is using two links for simplicity it should be noted, that having more links in a bundle will have less impact on capacity upon a member-link failure.
+            In this example, Tier-2 devices will be using two parallel links to connect to each Tier-1 device. If one of these links fails, the other will pick up all traffic of the failed link, possible resulting in heavy congestion and quality of service degradation if the path determination procedure does not take bandwidth amount into account. To avoid this situation, parallel links can be grouped in link aggregation groups (LAGs, such as <xref target="IEEE8023AD"/>) with widely available implementation settings that take the whole "bundle" down upon a single link failure. Equivalent techniques that enforce "fate sharing" on the parallel links can be used in place of LAGs to achieve the same effect. As a result of such fate-sharing, traffic from two or more failed links will be re-balanced over the multitude of remaining paths that equals the number of Tier-1 devices. This example is using two links for simplicity, having more links in a bundle will have less impact on capacity upon a member-link failure.
           </t>
         </section>
       </section>
@@ -274,10 +274,10 @@
       <t>This section provides an overview of three general types of data center protocol designs - Layer 2 only, Hybrid L2/L3 and Layer 3 only.</t>
       <section title="Layer 2 Only Designs" toc="default">
         <t>
-          Originally most data center designs used Spanning-Tree Protocol (STP) for loop free topology creation, typically utilizing variants of the traditional DC topology described in <xref target="traditional-topo" />. At the time, many DC switches either did not support Layer 3 routed protocols or supported it with additional licensing fees, which played a part in the design choice. Although many enhancements have been made through the introduction of Rapid Spanning Tree Protocol and Multiple Spanning Tree Protocol that increase convergence, stability and load balancing in larger topologies many of the fundamentals of the protocol limit its applicability in large scale DC's. STP and its newer variants use an active/standby approach to path selection and are therefore hard to deploy in horizontally scaled topologies described in <xref target="clos-topo" />. Further, operators have had many experiences with large failures due to issues caused by improper cabling, misconfiguration, or flawed software on a single device. These failures regularly affected the entire spanning-tree domain and were very hard to troubleshoot due to the nature of the protocol. For these reasons, and since almost all DC traffic is now IP, therefore requiring a Layer 3 routing protocol at the network edge for external connectivity, designs utilizing STP usually fail all of the requirements of large scale DC operators. Various enhancements to link-aggregation protocols such as <xref target="IEEE8023AD"/>, generally known as Multi-Chassis Link-Aggregation (M-LAG) made it possible to use Layer 2 designs with active-active network paths while relying on STP as the backup for loop prevention. The major downside of this approach is proprietary nature of such extensions.
+          Originally most data center designs used Spanning-Tree Protocol (STP) for loop free topology creation, typically utilizing variants of the traditional DC topology described in <xref target="traditional-topo" />. At the time, many DC switches either did not support Layer 3 routed protocols or supported it with additional licensing fees, which played a part in the design choice. Although many enhancements have been made through the introduction of Rapid Spanning Tree Protocol and Multiple Spanning Tree Protocol that increase convergence, stability and load balancing in larger topologies many of the fundamentals of the protocol limit its applicability in large-scale DC's. STP and its newer variants use an active/standby approach to path selection and are therefore hard to deploy in horizontally scaled topologies described in <xref target="clos-topo" />. Further, operators have had many experiences with large failures due to issues caused by improper cabling, misconfiguration, or flawed software on a single device. These failures regularly affected the entire spanning-tree domain and were very hard to troubleshoot due to the nature of the protocol. For these reasons, and since almost all DC traffic is now IP, therefore requiring a Layer 3 routing protocol at the network edge for external connectivity, designs utilizing STP usually fail all of the requirements of large-scale DC operators. Various enhancements to link-aggregation protocols such as <xref target="IEEE8023AD"/>, generally known as Multi-Chassis Link-Aggregation (M-LAG) made it possible to use Layer 2 designs with active-active network paths while relying on STP as the backup for loop prevention. The major downside of this approach is proprietary nature of such extensions.
         </t>
         <t>
-          It should be noted that building large, horizontally scalable, Layer 2 only networks without STP is possible recently through the introduction of TRILL <xref target="RFC6325" />. TRILL resolves many of the issues STP has for large scale DC design however currently the maturity of the protocol, limited number of implementations, and requirement for new equipment that supports it has limited its applicability and increased the cost of such designs.
+          It should be noted that building large, horizontally scalable, Layer 2 only networks without STP is possible recently through the introduction of TRILL <xref target="RFC6325" />. TRILL resolves many of the issues STP has for large-scale DC design however currently the maturity of the protocol, limited number of implementations, and requirement for new equipment that supports it has limited its applicability and increased the cost of such designs.
         </t>
         <t>
           Finally, neither TRILL nor M-LAG approach eliminate the fundamental problem of the shared broadcast domain, that is so detrimental to the operations of any Layer 2, Ethernet based solutions.
@@ -285,14 +285,14 @@
       </section>
       <section title="Hybrid L2/L3 Designs" toc="default">
         <t>
-          Operators have sought to limit the impact of data-plane faults and build larger scale topologies through implementing routing protocols in either the Tier-1 or Tier-2 parts of the network and dividing the Layer-2 domain into numerous, smaller domains. This design has allowed data centers to scale up, but at the cost of complexity in the network managing multiple protocols. For the following reasons, operators have retained Layer 2 in either the access (Tier-3) or both access and aggregation (Tier-3 and Tier-2) parts of the network:
+          Operators have sought to limit the impact of data plane faults and build larger scale topologies through implementing routing protocols in either the Tier-1 or Tier-2 parts of the network and dividing the Layer-2 domain into numerous, smaller domains. This design has allowed data centers to scale up, but at the cost of complexity in the network managing multiple protocols. For the following reasons, operators have retained Layer 2 in either the access (Tier-3) or both access and aggregation (Tier-3 and Tier-2) parts of the network:
         </t>
         <t>
           <list style="symbols">
             <t>Supporting legacy applications that may require direct Layer 2 adjacency or use non-IP protocols.</t>
             <t>Seamless mobility for virtual machines that require the preservation of IP addresses when a virtual machine moves to different Tier-3 switch.</t>
             <t>Simplified IP addressing = less IP subnets is required for the data center.</t>
-            <t>Application load-balancing may require direct Layer 2 reachability to perform certain functions such as Layer 2 Direct Server Return (DSR).</t>
+            <t>Application load balancing may require direct Layer 2 reachability to perform certain functions such as Layer 2 Direct Server Return (DSR).</t>
             <t>Continued CAPEX differences between Layer-2 and Layer-3 capable switches.</t>
           </list>
         </t>
@@ -335,10 +335,10 @@
               BGP information flooding overhead is less when compared to link-state IGPs. Since every BGP router calculates and propagates only the best-path selected, a network failure is masked as soon as the BGP speaker finds an alternate path, which exists when highly symmetric topologies, such as Clos, are coupled with EBGP only design. In contrast, the event propagation scope of a link-state IGP is an entire area, regardless of the failure type. This meets REQ3 and REQ4. It is worth mentioning that all widely deployed link-state IGPs also feature periodic refreshes of routing information, while BGP does not expire routing state, even if this rarely causes significant impact to modern router control planes.
             </t>
             <t>
-              BGP supports third-party (recursively resolved) next-hops. This allows for manipulating multi-path to be non-ECMP based or forwarding based on application-defined forwarding paths, through establishment of a peering session with an application "controller" which can inject routing information into the system, satisfying REQ5. OSPF provides similar functionality using concepts such as "Forwarding Address", but with more difficulty in implementation and lack of protocol simplicity.
+              BGP supports third-party (recursively resolved) next-hops. This allows for manipulating multipath to be non-ECMP based or forwarding based on application-defined forwarding paths, through establishment of a peering session with an application "controller" which can inject routing information into the system, satisfying REQ5. OSPF provides similar functionality using concepts such as "Forwarding Address", but with more difficulty in implementation and lack of protocol simplicity.
             </t>
             <t>
-              Using a well-defined BGP ASN allocation scheme and standard AS_PATH loop detection, "BGP path hunting" (see <xref target="JAKMA2008"/>) can be controlled and complex unwanted paths will be ignored. See <xref target="bgp-config" /> for an example of a working BGP ASN allocation scheme. In a link-state IGP accomplishing the same goal would require multi-(instance/topology/processes) support, typically not available in all DC devices and quite complex to configure and troubleshoot. Using a traditional single flooding domain, which most DC designs utilize, under certain failure conditions may pick up unwanted lengthy paths, e.g. traversing multiple Tier-2 devices.
+              Using a well-defined ASN allocation scheme and standard AS_PATH loop detection, "BGP path hunting" (see <xref target="JAKMA2008"/>) can be controlled and complex unwanted paths will be ignored. See <xref target="bgp-config" /> for an example of a working ASN allocation scheme. In a link-state IGP accomplishing the same goal would require multi-(instance/topology/processes) support, typically not available in all DC devices and quite complex to configure and troubleshoot. Using a traditional single flooding domain, which most DC designs utilize, under certain failure conditions may pick up unwanted lengthy paths, e.g. traversing multiple Tier-2 devices.
             </t>
             <t>
               EBGP configuration that is implemented with minimal routing policy is easier to troubleshoot for network reachability issues. In most implementations, it is straightforward to view contents of BGP Loc-RIB and compare it to the router's RIB. Also in most implementations an operator can view every BGP neighbors Adj-RIB-In and Adj-RIB-Out structures and therefore incoming and outgoing NRLI information can be easily correlated on both sides of a BGP session. Thus, BGP satisfies REQ3.
@@ -357,11 +357,10 @@
           <t>
             <list style="symbols">
               <t>EBGP single-hop sessions are established over direct point-to-point links interconnecting the network nodes, no multi-hop or loopback sessions are used even in the case of multiple links between the same pair of nodes.</t>
-              <t>16-bit (two octet) BGP ASNs are used, since these are widely supported and have better vendor interoperability.</t>
-              <t>Private BGP ASNs from the range 64512-65534 are used so as to avoid ASN conflicts.</t>
-              <t>A single BGP ASN is allocated to all of the Clos topology's Tier-1 devices.</t>
-              <t>A unique BGP ASN is allocated per each group of Tier-2 devices.</t>
-              <t>A unique BGP ASN is allocated to every Tier-3 device (e.g. ToR) in this topology.</t>
+              <t>Private Use ASNs from the range 64512-65534 are used so as to avoid ASN conflicts.</t>
+              <t>A single ASN is allocated to all of the Clos topology's Tier-1 devices.</t>
+              <t>A unique ASN is allocated per each group of Tier-2 devices.</t>
+              <t>A unique ASN is allocated to every Tier-3 device (e.g. ToR) in this topology.</t>
             </list>
           </t>
           <figure title="BGP ASN layout for 5-stage Clos" anchor="bgp-five-stage-clos" suppress-title="false" align="left" alt="" width="" height="">
@@ -395,15 +394,15 @@
             </artwork>
           </figure>
         </section>
-        <section title="Private Use BGP ASNs" toc="default">
+        <section title="Private Use ASNs" toc="default">
           <t>
-            The original range of Private Use BGP ASNs <xref target="RFC6996"/> limited operators to 1023 unique ASNs. Since it is quite likely that the number of network devices may exceed this number, a workaround is required. One approach is to re-use the ASNs assigned to the Tier-3 devices across different clusters. For example, Private Use BGP ASNs 65001, 65002 ... 65032 could be used within every individual cluster and assigned to Tier-3 devices.
+            The original range of Private Use ASNs <xref target="RFC6996"/> limited operators to 1023 unique ASNs. Since it is quite likely that the number of network devices may exceed this number, a workaround is required. One approach is to re-use the ASNs assigned to the Tier-3 devices across different clusters. For example, Private Use ASNs 65001, 65002 ... 65032 could be used within every individual cluster and assigned to Tier-3 devices.
           </t>
           <t>
-            To avoid route suppression due to the AS_PATH loop detection mechanism in BGP, upstream EBGP sessions on Tier-3 devices must be configured with the "AllowAS In" feature that allows accepting a device's own ASN in received route advertisements. Introducing this feature does not create an opportunity for routing loops under misconfiguration since the AS_PATH is always incremented when routes are propagated between topology tiers. Loop protection is also in place at the Tier-1 device, which does not accept routes with a path including its own ASN.
+            To avoid route suppression due to the AS_PATH loop detection mechanism in BGP, upstream EBGP sessions on Tier-3 devices must be configured with the "AllowAS In" feature that allows accepting a device's own ASN in received route advertisements. Introducing this feature does not make it likely for routing loops in the design since the AS_PATH is being added to by routers at each of the topology tiers and AS_PATH length is an early tie breaker in the BGP path selection process. Further loop protection is still in place at the Tier-1 device, which will not accept routes with a path including its own ASN and Tier-2 devices do not have direct connectivity with each other.
           </t>
           <t>
-            Another solution to this problem would be using four-octet BGP ASNs (<xref target="RFC6793"/>), where there are additional Private Use ASN's available, see <xref target="IANA.AS" />. Use of Four-Octet BGP ASNs put additional protocol complexity in the BGP implementation so should be considered against the complexity of re-use when considering REQ3 and REQ4. Perhaps more importantly, they are not yet supported by all BGP implementations, which may limit vendor selection of DC equipment.
+            Another solution to this problem would be using Four-Octet ASNs (<xref target="RFC6793"/>), where there are additional Private Use ASNs available, see <xref target="IANA.AS" />. Use of Four-Octet ASNs put additional protocol complexity in the BGP implementation so should be considered against the complexity of re-use when considering REQ3 and REQ4. Perhaps more importantly, they are not yet supported by all BGP implementations, which may limit vendor selection of DC equipment. When supported, ensure that implementations in use are able to remove the Private Use ASNs if required for <xref target="external-connectivity">external connectivity</xref>.
           </t>
         </section>
         <section title="Prefix Advertisement" anchor="prefix-advertisement" toc="default">
@@ -431,7 +430,7 @@
           <t>
             <list style="symbols">
               <t>
-                Hide network topology information when advertising paths to WAN routers, i.e. remove Private BGP ASNs from the AS_PATH attribute. This is typically done to avoid ASN number collisions between different data centers and also to provide a uniform AS_PATH length to the WAN for purposes of WAN ECMP to Anycast prefixes originated in the topology. An implementation specific BGP feature typically called "Remove Private AS" is commonly used to accomplish this. Depending on implementation, the feature should strip a contiguous sequence of private ASNs found in AS_PATH attribute prior to advertising the path to a neighbor. This assumes that all BGP ASN's used for intra data center numbering are from the private ASN range. The process for stripping the private ASNs is not currently standardized, but most implementations commonly follow the logic described in <xref target="REMOVE-PRIVATE-AS"/> vendor's document.
+                Hide network topology information when advertising paths to WAN routers, i.e. remove <xref target="RFC6996">Private Use ASNs</xref> from the AS_PATH attribute. This is typically done to avoid ASN number collisions between different data centers and also to provide a uniform AS_PATH length to the WAN for purposes of WAN ECMP to Anycast prefixes originated in the topology. An implementation specific BGP feature typically called "Remove Private AS" is commonly used to accomplish this. Depending on implementation, the feature should strip a contiguous sequence of Private Use ASNs found in AS_PATH attribute prior to advertising the path to a neighbor. This assumes that all ASNs used for intra data center numbering are from the Private Use ranges. The process for stripping the Private Use ASNs is not currently standardized, but most implementations commonly follow the logic described in <xref target="REMOVE-PRIVATE-AS"/> vendor's document.
               </t>
               <t>
                 Originate a default route to the data center devices. This is the only place where default route can be originated, as route summarization is risky for the "scale-out" topology. Alternatively, Border Routers may simply relay the default route learned from WAN routers. Advertising the default route from Border Routers requires that all Border Routers to be fully connected to the WAN Routers upstream, to provide resistance to a single-link failure causing the black-holing of traffic. To prevent chance of operator or implementation error that may impact EBGP sessions to the WAN routers simultaneously (although these scenarios are not planned for by many operators since they represents a multiple failure) it is more desirable to take this approach rather than introducing complicated conditional default origination schemes provided by some implementations.
@@ -464,7 +463,7 @@
       <t>This section covers the Equal Cost Multipath (ECMP) functionality for Clos topology and discusses a few special requirements.</t>
       <section title="Basic ECMP" toc="default">
         <t>
-          ECMP is the fundamental load-sharing mechanism used by a Clos topology. Effectively, every lower-tier device will use all of its directly attached upper-tier devices to load-share traffic destined to the same IP prefix. Number of ECMP paths between any two Tier-3 devices in Clos topology equals to the number of the devices in the middle stage (Tier-1). For example, <xref target="ecmp-fan-out" /> illustrates the topology where Tier-3 device A has four paths to reach servers X and Y, via Tier-2 devices B and C and then Tier-1 devices 1, 2, 3, and 4 respectively.
+          ECMP is the fundamental load sharing mechanism used by a Clos topology. Effectively, every lower-tier device will use all of its directly attached upper-tier devices to load share traffic destined to the same IP prefix. Number of ECMP paths between any two Tier-3 devices in Clos topology equals to the number of the devices in the middle stage (Tier-1). For example, <xref target="ecmp-fan-out" /> illustrates the topology where Tier-3 device A has four paths to reach servers X and Y, via Tier-2 devices B and C and then Tier-1 devices 1, 2, 3, and 4 respectively.
         </t>
         <figure title="ECMP fan-out tree from A to X and Y" anchor="ecmp-fan-out" suppress-title="false" align="left" alt="" width="" height="">
           <artwork xml:space="preserve" name="" type="" align="left" alt="" width="" height="">
@@ -493,15 +492,15 @@
           </artwork>
         </figure>
         <t>
-          The ECMP requirement implies that the BGP implementation must support multi-path fan-out for up to the maximum number of devices directly attached at any point in the topology in upstream or downstream direction. Normally, this number does not exceed half of the ports found on a device in the topology. For example, an ECMP fan-out of 32 would be required when building a Clos network using 64-port devices. The Border Routers may need to have wider fan-out to be able to connect to multitude of Tier-1 devices if route summarization at Border Router level is implemented as described in <xref target="network-edge" />. If a device's hardware does not support wider ECMP, logical link-grouping (link-aggregation at layer 2) could be used to provide "hierarchical" ECMP (Layer 3 ECMP followed by Layer 2 ECMP) to compensate for fan-out limitations. Such approach, however, increases the risk of flow polarization, as less entropy will be available to the second stage of ECMP.
+          The ECMP requirement implies that the BGP implementation must support multipath fan-out for up to the maximum number of devices directly attached at any point in the topology in upstream or downstream direction. Normally, this number does not exceed half of the ports found on a device in the topology. For example, an ECMP fan-out of 32 would be required when building a Clos network using 64-port devices. The Border Routers may need to have wider fan-out to be able to connect to multitude of Tier-1 devices if route summarization at Border Router level is implemented as described in <xref target="network-edge" />. If a device's hardware does not support wider ECMP, logical link-grouping (link-aggregation at layer 2) could be used to provide "hierarchical" ECMP (Layer 3 ECMP followed by Layer 2 ECMP) to compensate for fan-out limitations. Such approach, however, increases the risk of flow polarization, as less entropy will be available to the second stage of ECMP.
         </t>
         <t>
-          Most BGP implementations declare paths to be equal from ECMP perspective if they match up to and including step (e) Section 9.1.2.2 of <xref target="RFC4271" />. In the proposed network design there is no underlying IGP, so all IGP costs are assumed to be zero or otherwise the same value across all paths and policies may be applied as necessary to equalize BGP attributes that vary in vendor defaults, as has been seen occasionally with MED and origin code. Routing loops are unlikely due to the BGP best-path selection process which prefers shorter AS_PATH length, and longer paths through the Tier-1 devices which don't allow their own AS in the path and have the same ASN are also not possible.
+          Most BGP implementations declare paths to be equal from ECMP perspective if they match up to and including step (e) Section 9.1.2.2 of <xref target="RFC4271" />. In the proposed network design there is no underlying IGP, so all IGP costs are assumed to be zero or otherwise the same value across all paths and policies may be applied as necessary to equalize BGP attributes that vary in vendor defaults, such as MED and origin code. For historical reasons it is also useful to not use 0 as the equalized MED value, this and some other useful BGP information is available in <xref target="RFC4277" /> . Routing loops are unlikely due to the BGP best-path selection process which prefers shorter AS_PATH length, and longer paths through the Tier-1 devices which don't allow their own ASN in the path and have the same ASN are also not possible.
         </t>
       </section>
       <section title="BGP ECMP over Multiple ASNs" toc="default">
         <t>
-          For application load-balancing purposes it is desirable to have the same prefix advertised from multiple Tier-3 devices. From the perspective of other devices, such a prefix would have BGP paths with different AS_PATH attribute values, while having the same AS_PATH attribute lengths. Therefore, BGP implementations must support load-sharing over above-mentioned paths. This feature is sometimes known as "multipath relax" and effectively allows for ECMP to be done across different neighboring ASNs if all other attributes are equal as described in the previous section.
+          For application load balancing purposes it is desirable to have the same prefix advertised from multiple Tier-3 devices. From the perspective of other devices, such a prefix would have BGP paths with different AS_PATH attribute values, while having the same AS_PATH attribute lengths. Therefore, BGP implementations must support load sharing over above-mentioned paths. This feature is sometimes known as "multipath relax" and effectively allows for ECMP to be done across different neighboring ASNs if all other attributes are equal as described in the previous section.
         </t>
       </section>
       <section title="Weighted ECMP" toc="default">
@@ -511,7 +510,7 @@
       </section>
       <section title="Consistent Hashing" toc="default">
         <t>
-          It is often desirable to have the hashing function used to ECMP to be consistent (see <xref target="CONS-HASH"/>), to minimizing the impact on flow to next-hop affinity changes when a next-hop is added or removed to ECMP group. This could be used if the network device is used as a load-balancer, mapping flows toward multiple destinations - in this case, losing or adding a destination will not have detrimental effect of currently established flows. One particular recommendation on implementing consistent hashing is provided in <xref target="RFC2992"/>, though other implementations are possible. This functionality could be naturally combined with weighted ECMP, with the impact of the next-hop changes being proportional to the weight of the given next-hop. Notice that the usual downside of consistent hashing is increased load on hardware resource utilization, as typically more space is required to implement a consistent-hashing region.
+          It is often desirable to have the hashing function used to ECMP to be consistent (see <xref target="CONS-HASH"/>), to minimizing the impact on flow to next-hop affinity changes when a next-hop is added or removed to ECMP group. This could be used if the network device is used as a load balancer, mapping flows toward multiple destinations - in this case, losing or adding a destination will not have detrimental effect of currently established flows. One particular recommendation on implementing consistent hashing is provided in <xref target="RFC2992"/>, though other implementations are possible. This functionality could be naturally combined with weighted ECMP, with the impact of the next-hop changes being proportional to the weight of the given next-hop. Notice that the usual downside of consistent hashing is increased load on hardware resource utilization, as typically more space is required to implement a consistent-hashing region.
         </t>
       </section>      
     </section>
@@ -543,7 +542,7 @@
           Clos topology has large fan-outs, which may impact the "Up->Down" convergence in some cases, as described in this section. In a situation when a link between Tier-3 and Tier-2 device fails, the Tier-2 device will send BGP WITHDRAW message to all upstream Tier-1 devices, and Tier-1 devices will relay this message to all downstream Tier-2 devices (except for the originator). Tier-2 devices other than the one originating the WITHDRAW should then wait for ALL adjacent Tier-1 devices to send a WITHDRAW message before it removes the affected prefixes and sends corresponding WITHDRAW downstream to connected Tier-3 devices. If the original Tier-2 device or the relaying Tier-1 devices introduce some delay into their announcements, the result could be WITHDRAW message "dispersion", that could be as long as multiple seconds. In order to avoid such behavior, BGP implementations must support "update groups". The "update group" is defined as a collection of neighbors sharing the same outbound policy - the local speaker will send BGP updates to the members of the group synchronously. 
         </t>
         <t>
-          The impact of such "dispersion" grows with the size of topology fan-out and could also grow under network convergence churn.  Some operators may be tempted to introduce "route flap dampening" type features that vendors include to reduce the impact of rapidly flapping prefixes in the design, however due to issues described with false positives in these implementations especially under such "dispersion" events, it is not recommended to turn these features on in this design.  Historical issues with "route flap dampening" and possible implementation changes that might change this recommendation are well described in <xref target="RFC7196"/>.
+          The impact of such "dispersion" grows with the size of topology fan-out and could also grow under network convergence churn.  Some operators may be tempted to introduce "route flap dampening" type features that vendors include to reduce the control plane impact of rapidly flapping prefixes, however due to issues described with false positives in these implementations especially under such "dispersion" events, it is not recommended to turn this feature on in this design.  More background and issues with "route flap dampening" and possible implementation changes that could change this are well described in <xref target="RFC7196"/>.
         </t>
       </section>
       <section title="Failure Impact Scope" toc="default">
@@ -567,7 +566,7 @@
           Even though in case of such failures multiple IP prefixes will have to be reprogrammed in the FIB, it is worth noting that ALL of these prefixes share a single ECMP group on Tier-2 device. Therefore, in the case of implementations with a hierarchical FIB, only a single change has to be made to the FIB. Hierarchical FIB here means FIB structure where the next-hop forwarding information is stored separately from the prefix lookup table, and the latter only store pointers to the respective forwarding information.
         </t>
         <t>
-          Even though BGP offers some failure scope reduction, reduction of the fault domain using summarization is not always possible with the proposed design, since using this technique may create routing black-holes as mentioned previously. Therefore, the worst control-plane failure impact scope is the network as a whole, for instance in a case of a link failure between Tier-2 and Tier-3 devices. The amount of impacted prefixes in this case would be much less than in the case of a failure in the upper layers of a Clos network topology. The property of having such large failure scope is not a result of choosing EBGP in the design but rather a result of using the "scale-out" Clos topology.
+          Even though BGP offers some failure scope reduction, reduction of the fault domain using summarization is not always possible with the proposed design, since using this technique may create routing black-holes as mentioned previously. Therefore, the worst control plane failure impact scope is the network as a whole, for instance in a case of a link failure between Tier-2 and Tier-3 devices. The amount of impacted prefixes in this case would be much less than in the case of a failure in the upper layers of a Clos network topology. The property of having such large failure scope is not a result of choosing EBGP in the design but rather a result of using the "scale-out" Clos topology.
         </t>
       </section>
       <section title="Routing Micro-Loops" anchor="micro-loops" toc="default">
@@ -575,14 +574,14 @@
           When a downstream device, e.g. Tier-2 device, loses all paths for a prefix, it normally has the default route pointing toward the upstream device, in this case the Tier-1 device. As a result, it is possible to get in the situation when Tier-2 switch loses a prefix, but Tier-1 switch still has the path pointing to the Tier-2 device, which results in transient micro-loop, since Tier-1 switch will keep passing packets to the affected prefix back to Tier-2 device, and Tier-2 will bounce it back again using the default route. This micro-loop will last for the duration of time it takes the upstream device to fully update its forwarding tables.
         </t>
         <t>
-          To minimize impact of the micro-loops, Tier-2 and Tier-1 switches can be configured with static "discard" or "null" routes that will be more specific than the default route for specific prefixes missing during network convergence. For Tier-2 switches, the discard route should be a summary route, covering all server subnets of the underlying Tier-3 devices. For Tier-1 devices, the discard route should be a summary covering the server IP address subnet allocated for the whole data-center. Those discard routes will only take precedence for the duration of network convergence, until the device learns a more specific prefix via a new path.
+          To minimize impact of the micro-loops, Tier-2 and Tier-1 switches can be configured with static "discard" or "null" routes that will be more specific than the default route for specific prefixes missing during network convergence. For Tier-2 switches, the discard route should be a summary route, covering all server subnets of the underlying Tier-3 devices. For Tier-1 devices, the discard route should be a summary covering the server IP address subnet allocated for the whole data center. Those discard routes will only take precedence for the duration of network convergence, until the device learns a more specific prefix via a new path.
         </t>
       </section>
     </section>
     <section title="Additional Options for Design" anchor="enhancements" toc="default">
       <section title="Third-party Route Injection" anchor="third-party-route-injection" toc="default">
         <t>
-          BGP allows for a "third-party", i.e. directly attached, BGP speaker to inject routes anywhere in the network topology, meeting REQ5. This can be achieved by peering via a multihop BGP session with some or even all devices in the topology. Furthermore, BGP diverse path distribution <xref target="RFC6774" pageno="false" format="default" /> could be used to inject multiple BGP next hops for the same prefix to facilitate load-balancing, or using the BGP ADD-PATH capability <xref target="I-D.ietf-idr-add-paths" /> if supported by the implementation. Unfortunately, in many implementations ADD-PATH has been found to only support IBGP properly due to the use cases it was originally optimized for, which limits the "third-party" peering to iBGP only, if the feature is used.
+          BGP allows for a "third-party", i.e. directly attached, BGP speaker to inject routes anywhere in the network topology, meeting REQ5. This can be achieved by peering via a multihop BGP session with some or even all devices in the topology. Furthermore, BGP diverse path distribution <xref target="RFC6774" pageno="false" format="default" /> could be used to inject multiple BGP next hops for the same prefix to facilitate load balancing, or using the BGP ADD-PATH capability <xref target="I-D.ietf-idr-add-paths" /> if supported by the implementation. Unfortunately, in many implementations ADD-PATH has been found to only support IBGP properly due to the use cases it was originally optimized for, which limits the "third-party" peering to iBGP only, if the feature is used.
         </t>
         <t>
           To implement route injection in the proposed design a third-party BGP speaker may peer with Tier-3 and Tier-1 switches, injecting the same prefix, but using a special set of BGP next-hops for Tier-1 devices. Those next-hops are assumed to resolve recursively via BGP, and could be, for example, IP addresses on Tier-3 devices. The resulting forwarding table programming could provide desired traffic proportion distribution among different clusters.
@@ -596,7 +595,7 @@
 		  If planning on using any technique to summarize within the topology modeling of the routing behavior and potential for black-holing should be done not only for single or multiple link failures, but also fiber pathway failures or optical domain failures if the topology extends beyond a physical location.  Simple modeling can be done by checking the reachability on devices doing summarization under the condition of a link or pathway failure between a set of devices in every Tier as well as to the WAN routers if external connectivity is present.
 		</t>
         <t>
-          Route summarization would be possible with a small modification to the network topology, though the trade-off would be reduction of the total size of the network as well as network congestion under specific failures. This approach is very similar to the technique described above, which allows Border Routers to summarize the entire data-center address space.
+          Route summarization would be possible with a small modification to the network topology, though the trade-off would be reduction of the total size of the network as well as network congestion under specific failures. This approach is very similar to the technique described above, which allows Border Routers to summarize the entire data center address space.
         </t>
         <section title="Collapsing Tier-1 Devices Layer">
           <t>
@@ -680,20 +679,37 @@
     </references>
     <references title="Informative References">
       <?rfc include="reference.RFC.2328.xml"?>
+      <?rfc include="reference.RFC.2992.xml"?>
       <?rfc include="reference.RFC.4272.xml"?>
+      <?rfc include="reference.RFC.4277.xml"?>
       <?rfc include="reference.RFC.4786.xml"?>
       <?rfc include="reference.RFC.5082.xml"?>
       <?rfc include="reference.RFC.5880.xml"?>
       <?rfc include="reference.RFC.6325.xml"?>
+      <?rfc include="reference.RFC.6769.xml"?>
       <?rfc include="reference.RFC.6774.xml"?>
       <?rfc include="reference.RFC.6793.xml"?>
-      <?rfc include="reference.RFC.2992.xml"?>
-      <?rfc include="reference.RFC.6769.xml"?>
       <?rfc include="reference.RFC.7130.xml"?>	  
       <?rfc include="reference.RFC.7196.xml"?>	  
       <?rfc include="reference.I-D.ietf-idr-add-paths"?>
       <?rfc include="reference.I-D.ietf-idr-link-bandwidth"?>
 
+      <reference anchor="CLOS1953" target="">
+        <front>
+          <title>A Study of Non-Blocking Switching Networks</title>
+          <author initials="C" surname="Clos" fullname="Charles Clos">
+            <organization>Bell Labs Technical Journal</organization>
+          </author>
+          <date month="March" year="1953" />
+        </front>
+      </reference>
+      <reference anchor="HADOOP" target="https://hadoop.apache.org/">
+        <front>
+          <title>Apache HaDoop</title>
+          <author surname="Apache" fullname="Apache"><organization/></author>
+          <date month="June" year="2015"/>
+        </front>
+      </reference>
       <reference anchor="GREENBERG2009" target="">
         <front>
           <title>The Cost of a Cloud: Research Problems in Data Center Networks</title>
