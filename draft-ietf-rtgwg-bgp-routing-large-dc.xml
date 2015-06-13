@@ -4,7 +4,7 @@
 <?rfc compact="yes"?>
 <?rfc subcompact="no"?>
 <?rfc symrefs="yes" ?>
-<rfc category="info" ipr="trust200902" docName="draft-ietf-rtgwg-bgp-routing-large-dc-01" obsoletes="" updates="" submissionType="IETF" xml:lang="en">
+<rfc category="info" ipr="trust200902" docName="draft-ietf-rtgwg-bgp-routing-large-dc-02" obsoletes="" updates="" submissionType="IETF" xml:lang="en">
   <front>
     <title abbrev="draft-ietf-rtgwg-bgp-routing-large-dc">Use of BGP for routing in large-scale data centers</title>
     <author initials="P." surname="Lapukhov" fullname="Petr Lapukhov">
@@ -35,16 +35,8 @@
       </address>
     </author>
     <author role="editor" initials="J." surname="Mitchell" fullname="Jon Mitchell">
-      <organization>Microsoft Corporation</organization>
       <address>
-        <postal>
-          <street>One Microsoft Way</street>
-          <city>Redmond</city>
-          <region>WA</region>
-          <code>98052</code>
-          <country>US</country>
-        </postal>
-        <email>Jon.Mitchell@microsoft.com</email>
+        <email>jrmitche@puck.nether.net</email>
       </address>
     </author>
     <date year="2015"/>
@@ -755,7 +747,7 @@
         <front>
           <title>Autonomous System (AS) Numbers</title>
           <author surname="IANA" fullname="IANA"><organization/></author>
-          <date month="February" year="2015"/>
+          <date month="April" year="2015"/>
         </front>
       </reference>
       <reference anchor="IEEE8023AD" target="">
