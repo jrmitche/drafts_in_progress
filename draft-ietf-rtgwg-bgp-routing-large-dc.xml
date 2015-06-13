@@ -4,7 +4,7 @@
 <?rfc compact="yes"?>
 <?rfc subcompact="no"?>
 <?rfc symrefs="yes" ?>
-<rfc category="info" ipr="trust200902" docName="draft-ietf-rtgwg-bgp-routing-large-dc-02" obsoletes="" updates="" submissionType="IETF" xml:lang="en">
+<rfc category="info" ipr="trust200902" docName="draft-ietf-rtgwg-bgp-routing-large-dc-03" obsoletes="" updates="" submissionType="IETF" xml:lang="en">
   <front>
     <title abbrev="draft-ietf-rtgwg-bgp-routing-large-dc">Use of BGP for routing in large-scale data centers</title>
     <author initials="P." surname="Lapukhov" fullname="Petr Lapukhov">
@@ -35,13 +35,21 @@
       </address>
     </author>
     <author role="editor" initials="J." surname="Mitchell" fullname="Jon Mitchell">
+      <organization>Google</organization>
       <address>
+        <postal>
+          <street>1600 Amphitheatre Parkway</street>
+          <city>Mountain View</city>
+          <region>CA</region>
+          <code>94043</code>
+          <country>US</country>
+        </postal>
         <email>jrmitche@puck.nether.net</email>
       </address>
     </author>
     <date year="2015"/>
     <area>Routing</area>
-	<workgroup>Routing Area Working Group</workgroup>
+    <workgroup>Routing Area Working Group</workgroup>
     <keyword>Internet Draft</keyword>
     <keyword>BGP</keyword>
     <keyword>ECMP</keyword>
@@ -219,33 +227,34 @@
           </t>
           <figure title="5-Stage Clos topology" anchor="five-stage-clos" suppress-title="false" align="left" alt="" width="" height="">
             <artwork xml:space="preserve" name="" type="" align="left" alt="" width="" height="">
-                             Tier-1                             
-                            +-----+                                 
-                            |     |                              
-                         +--|     |--+                          
-                         |  +-----+  |                            
-                 Tier-2  |           |   Tier-2                    
-                +-----+  |  +-----+  |  +-----+    
-  +-------------| DEV |--+--|     |--+--|     |-------------+ 
-  |       +-----|  C  |--+  |     |  +--|     |-----+       | 
-  |       |     +-----+     +-----+     +-----+     |       |
-  |       |                                         |       | 
-  |       |     +-----+     +-----+     +-----+     |       | 
-  | +-----+-----| DEV |--+  |     |  +--|     |-----+-----+ |
-  | |     | +---|  D  |--+--|     |--+--|     |---+ |     | |
-  | |     | |   +-----+  |  +-----+  |  +-----+   | |     | |
-  | |     | |            |           |            | |     | |
-+-----+ +-----+          |  +-----+  |          +-----+ +-----+
-| DEV | | DEV |          +--|     |--+          |     | |     |
-|  A  | |  B  | Tier-3      |     |      Tier-3 |     | |     |
-+-----+ +-----+             +-----+             +-----+ +-----+
-  | |     | |                                     | |     | |  
-  O O     O O                                     O O     O O 
-    Servers                                         Servers
+                                     Tier-1                            
+                                    +-----+                            
+         Cluster                    |     |                            
++----------------------------+   +--|     |--+                         
+|                            |   |  +-----+  |                         
+|                    Tier-2  |   |           |   Tier-2                
+|                   +-----+  |   |  +-----+  |  +-----+                
+|     +-------------| DEV |------+--|     |--+--|     |-------------+  
+|     |       +-----|  C  |------+  |     |  +--|     |-----+       |  
+|     |       |     +-----+  |      +-----+     +-----+     |       |  
+|     |       |              |                              |       |  
+|     |       |     +-----+  |      +-----+     +-----+     |       |  
+|     | +-----------| DEV |------+  |     |  +--|     |-----------+ |  
+|     | |     | +---|  D  |------+--|     |--+--|     |---+ |     | |  
+|     | |     | |   +-----+  |   |  +-----+  |  +-----+   | |     | |  
+|     | |     | |            |   |           |            | |     | |  
+|   +-----+ +-----+          |   |  +-----+  |          +-----+ +-----+
+|   | DEV | | DEV |          |   +--|     |--+          |     | |     |
+|   |  A  | |  B  | Tier-3   |      |     |      Tier-3 |     | |     |
+|   +-----+ +-----+          |      +-----+             +-----+ +-----+
+|     | |     | |            |                            | |     | |  
+|     O O     O O            |                            O O     O O  
+|       Servers              |                              Servers    
++----------------------------+                                         
             </artwork>
           </figure>
           <t>
-            The small example topology on <xref target="five-stage-clos" pageno="false" format="default" /> is built from devices with a port count of 4 and provides full bisectional bandwidth to all connected servers. In this document, one set of directly connected Tier-2 and Tier-3 devices along with their attached servers will be referred to as a "cluster". For example, DEV A, B, C, D, and the servers that connect to DEV A and B, on <xref target="five-stage-clos" pageno="false" format="default" /> form a cluster.
+            The small example topology on <xref target="five-stage-clos" pageno="false" format="default" /> is built from devices with a port count of 4 and provides full bisectional bandwidth to all connected servers. In this document, one set of directly connected Tier-2 and Tier-3 devices along with their attached servers will be referred to as a "cluster". For example, DEV A, B, C, D, and the servers that connect to DEV A and B, on <xref target="five-stage-clos" pageno="false" format="default" /> form a cluster.  The concept of a cluster may also be a useful concept as a single deployment or maintenance unit which can be operated on at a different frequency than the entire topology.
           </t>
           <t>
             In practice, the Tier-3 layer of the network, which are typically top of rack switches (ToRs), is where oversubscription is introduced to allow for packaging of more servers in the data center while meeting the bandwidth requirements for different types of applications. The main reason to limit oversubscription at a single layer of the network is to simplify application development that would otherwise need to account for multiple bandwidth pools: within rack (Tier-3), between racks (Tier-2), and between clusters (Tier-1). Since oversubscription does not have a direct relationship to the routing design it is not discussed further in this document.
@@ -320,7 +329,7 @@
         <t>
           <list style="symbols">
             <t>
-              BGP has less complexity within its protocol design - internal data structures and state-machines are simpler when compared to a link-state IGP such as OSPF. For example, instead of implementing adjacency formation, adjacency maintenance and/or flow-control, BGP simply relies on TCP as the underlying transport. This fulfills REQ2 and REQ3.
+              BGP has less complexity in parts of its protocol design - internal data structures and state machine are simple when compared to most link-state IGP such as OSPF. For example, instead of implementing adjacency formation, adjacency maintenance and/or flow-control, BGP simply relies on TCP as the underlying transport. This fulfills REQ2 and REQ3.
             </t>
             <t>
               BGP information flooding overhead is less when compared to link-state IGPs. Since every BGP router calculates and propagates only the best-path selected, a network failure is masked as soon as the BGP speaker finds an alternate path, which exists when highly symmetric topologies, such as Clos, are coupled with EBGP only design. In contrast, the event propagation scope of a link-state IGP is an entire area, regardless of the failure type. This meets REQ3 and REQ4. It is worth mentioning that all widely deployed link-state IGPs also feature periodic refreshes of routing information, while BGP does not expire routing state, even if this rarely causes significant impact to modern router control planes.
@@ -332,7 +341,7 @@
               Using a well-defined BGP ASN allocation scheme and standard AS_PATH loop detection, "BGP path hunting" (see <xref target="JAKMA2008"/>) can be controlled and complex unwanted paths will be ignored. See <xref target="bgp-config" /> for an example of a working BGP ASN allocation scheme. In a link-state IGP accomplishing the same goal would require multi-(instance/topology/processes) support, typically not available in all DC devices and quite complex to configure and troubleshoot. Using a traditional single flooding domain, which most DC designs utilize, under certain failure conditions may pick up unwanted lengthy paths, e.g. traversing multiple Tier-2 devices.
             </t>
             <t>
-              EBGP configuration that is implemented with minimal routing policy is easier to troubleshoot for network reachability issues. In most implementations, it is straightforward to view contents of BGP Loc-RIB and compare it to the router's RIB. Also every BGP neighbor has corresponding Adj-RIB-In and Adj-RIB-Out structures with incoming and outgoing NRLI information that can be easily correlated on both sides of a BGP session. Thus, BGP satisfies REQ3.
+              EBGP configuration that is implemented with minimal routing policy is easier to troubleshoot for network reachability issues. In most implementations, it is straightforward to view contents of BGP Loc-RIB and compare it to the router's RIB. Also in most implementations an operator can view every BGP neighbors Adj-RIB-In and Adj-RIB-Out structures and therefore incoming and outgoing NRLI information can be easily correlated on both sides of a BGP session. Thus, BGP satisfies REQ3.
             </t>
           </list>
         </t>
@@ -341,18 +350,18 @@
         <t>
           Clos topologies that have more than 5 stages are very uncommon due to the large numbers of interconnects required by such a design. Therefore, the examples below are made with reference to the 5-stage Clos topology (5 stages in unfolded state).
         </t>
-        <section title="Example ASN Scheme" toc="default">
+        <section title="EBGP Configuration Guidelines and Example ASN Scheme" toc="default">
           <t>
             The diagram below illustrates an example ASN allocation scheme. The following is a list of guidelines that can be used:
           </t>
           <t>
             <list style="symbols">
-              <t>Only EBGP sessions established over direct point-to-point links interconnecting the network nodes.</t>
+              <t>EBGP single-hop sessions are established over direct point-to-point links interconnecting the network nodes, no multi-hop or loopback sessions are used even in the case of multiple links between the same pair of nodes.</t>
               <t>16-bit (two octet) BGP ASNs are used, since these are widely supported and have better vendor interoperability.</t>
               <t>Private BGP ASNs from the range 64512-65534 are used so as to avoid ASN conflicts.</t>
               <t>A single BGP ASN is allocated to all of the Clos topology's Tier-1 devices.</t>
-              <t>Unique BGP ASN is allocated per each group of Tier-2 devices.</t>
-              <t>Unique BGP ASN is allocated to every Tier-3 device (e.g. ToR) in this topology.</t>
+              <t>A unique BGP ASN is allocated per each group of Tier-2 devices.</t>
+              <t>A unique BGP ASN is allocated to every Tier-3 device (e.g. ToR) in this topology.</t>
             </list>
           </t>
           <figure title="BGP ASN layout for 5-stage Clos" anchor="bgp-five-stage-clos" suppress-title="false" align="left" alt="" width="" height="">
@@ -518,7 +527,7 @@
           Relying solely on BGP keep-alive packets may result in high convergence delays, in the order of multiple seconds (on many BGP implementations the minimum configurable BGP hold timer value is three seconds). However, many BGP implementations can shut down local EBGP peering sessions in response to the "link down" event for the outgoing interface used for BGP peering. This feature is sometimes called as "fast fallover". Since links in modern data centers are often point-to-point fiber connections, a physical interface failure is often detected in milliseconds and subsequently triggers a BGP re-convergence.
         </t>
         <t>
-		Ethernet technologies may support failure signaling or detection standards such as <xref target="IEEE8021AG" /> and <xref target="IEEE8023AH" />, which may make failure detection more robust. Alternatively, some platforms may support <xref target="RFC5880">Bidirectional Forwarding Detection (BFD)</xref> to allow for sub-second failure detection and fault signaling to the BGP process. However, use of either of these presents additional requirements to vendor software and possibly hardware, and may contradict REQ1.  Until recently with <xref target="RFC7130" />, BFD also did not allow detection of a single member link failure on a LAG, which would limit's it's usefulness in some designs.
+          Ethernet technologies may support failure signaling or detection standards such as <xref target="IEEE8021AG" /> and <xref target="IEEE8023AH" />, which may make failure detection more robust. Alternatively, some platforms may support <xref target="RFC5880">Bidirectional Forwarding Detection (BFD)</xref> to allow for sub-second failure detection and fault signaling to the BGP process. However, use of either of these presents additional requirements to vendor software and possibly hardware, and may contradict REQ1.  Until recently with <xref target="RFC7130" />, BFD also did not allow detection of a single member link failure on a LAG, which would limit's it's usefulness in some designs.
         </t>
       </section>
       <section title="Event Propagation Timing" toc="default">
@@ -526,14 +535,16 @@
           In this design the impact of BGP Minimum Route Advertisement Interval (MRAI) timer (See section 9.2.1.1 of <xref target="RFC4271" pageno="false" format="default" />) should be considered. Per the standard it is required for BGP implementations to space out consecutive BGP UPDATE messages by at least MRAI seconds, which is often a configurable value. The initial BGP UPDATE messages after an event carrying withdrawn routes are commonly not affected by this timer. The MRAI timer may present significant convergence delays when a BGP speaker "waits" for the new path to be learned from its peers and has no local backup path information.
         </t>
         <t>
-		In a Clos topology each EBGP speaker has either one path or N paths for the same prefix, where N is a significantly large number, e.g. N=32 (the ECMP fan-out). Therefore, if a path fails there is either no backup path at all, or the backup is readily available in BGP Loc-RIB. In the former case, the BGP withdrawal announcement will propagate un-delayed and trigger re-convergence on affected devices. In the latter case, the best-path will be re-evaluated and the local ECMP group corresponding to the new next-hop set changed.  If the BGP path was the best-path selected previously, an "implicit withdraw" will be sent via a BGP UPDATE message as described as option b in Section 3.1 of <xref target="RFC4271" /> due to the BGP AS_PATH attribute changing.
+          In a Clos topology each EBGP speaker has either one path or N paths for the same prefix, where N is a significantly large number, e.g. N=32 (the ECMP fan-out). Therefore, if a path fails there is either no backup path at all, or the backup is readily available in BGP Loc-RIB. In the former case, the BGP withdrawal announcement will propagate un-delayed and trigger re-convergence on affected devices. In the latter case, the best-path will be re-evaluated and the local ECMP group corresponding to the new next-hop set changed.  If the BGP path was the best-path selected previously, an "implicit withdraw" will be sent via a BGP UPDATE message as described as option b in Section 3.1 of <xref target="RFC4271" /> due to the BGP AS_PATH attribute changing.
         </t>
       </section>
       <section title="Impact of Clos Topology Fan-outs" toc="default">
         <t>
           Clos topology has large fan-outs, which may impact the "Up->Down" convergence in some cases, as described in this section. In a situation when a link between Tier-3 and Tier-2 device fails, the Tier-2 device will send BGP WITHDRAW message to all upstream Tier-1 devices, and Tier-1 devices will relay this message to all downstream Tier-2 devices (except for the originator). Tier-2 devices other than the one originating the WITHDRAW should then wait for ALL adjacent Tier-1 devices to send a WITHDRAW message before it removes the affected prefixes and sends corresponding WITHDRAW downstream to connected Tier-3 devices. If the original Tier-2 device or the relaying Tier-1 devices introduce some delay into their announcements, the result could be WITHDRAW message "dispersion", that could be as long as multiple seconds. In order to avoid such behavior, BGP implementations must support "update groups". The "update group" is defined as a collection of neighbors sharing the same outbound policy - the local speaker will send BGP updates to the members of the group synchronously. 
         </t>
-        <t>The impact of such "dispersion" grows with the size of topology fan-out and could also grow under network convergence churn.</t>
+        <t>
+          The impact of such "dispersion" grows with the size of topology fan-out and could also grow under network convergence churn.  Some operators may be tempted to introduce "route flap dampening" type features that vendors include to reduce the impact of rapidly flapping prefixes in the design, however due to issues described with false positives in these implementations especially under such "dispersion" events, it is not recommended to turn these features on in this design.  Historical issues with "route flap dampening" and possible implementation changes that might change this recommendation are well described in <xref target="RFC7196"/>.
+        </t>
       </section>
       <section title="Failure Impact Scope" toc="default">
         <t>
@@ -679,6 +690,7 @@
       <?rfc include="reference.RFC.2992.xml"?>
       <?rfc include="reference.RFC.6769.xml"?>
       <?rfc include="reference.RFC.7130.xml"?>	  
+      <?rfc include="reference.RFC.7196.xml"?>	  
       <?rfc include="reference.I-D.ietf-idr-add-paths"?>
       <?rfc include="reference.I-D.ietf-idr-link-bandwidth"?>
 
