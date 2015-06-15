@@ -274,10 +274,10 @@
       <t>This section provides an overview of three general types of data center protocol designs - Layer 2 only, Hybrid L2/L3 and Layer 3 only.</t>
       <section title="Layer 2 Only Designs" toc="default">
         <t>
-          Originally most data center designs used <xref target="IEEE8021D">Spanning-Tree Protocol (STP)</xref> for loop free topology creation, typically utilizing variants of the traditional DC topology described in <xref target="traditional-topo" />. At the time, many DC switches either did not support Layer 3 routed protocols or supported it with additional licensing fees, which played a part in the design choice. Although many enhancements have been made through the introduction of Rapid Spanning Tree Protocol (RSTP) in the latest revision of <xref target="IEEE8021D">IEEE 802.1D</xref> and Multiple Spanning Tree Protocol (MST) currently specified in <xref target="IEEE8021Q">IEEE 802.1Q</xref> that increase convergence, stability and load balancing in larger topologies many of the fundamentals of the protocol limit its applicability in large-scale DCs. STP and its newer variants use an active/standby approach to path selection and are therefore hard to deploy in horizontally-scaled topologies as described in <xref target="clos-topo" />. Further, operators have had many experiences with large failures due to issues caused by improper cabling, misconfiguration, or flawed software on a single device. These failures regularly affected the entire spanning-tree domain and were very hard to troubleshoot due to the nature of the protocol. For these reasons, and since almost all DC traffic is now IP, therefore requiring a Layer 3 routing protocol at the network edge for external connectivity, designs utilizing STP usually fail all of the requirements of large-scale DC operators. Various enhancements to link-aggregation protocols such as <xref target="IEEE8023AD"/>, generally known as Multi-Chassis Link-Aggregation (M-LAG) made it possible to use Layer 2 designs with active-active network paths while relying on STP as the backup for loop prevention. The major downside of this approach is the proprietary nature of such extensions.
+          Originally most data center designs used Spanning-Tree Protocol (STP) originally defined in <xref target="IEEE8021D-1990" /> for loop free topology creation, typically utilizing variants of the traditional DC topology described in <xref target="traditional-topo" />. At the time, many DC switches either did not support Layer 3 routed protocols or supported it with additional licensing fees, which played a part in the design choice. Although many enhancements have been made through the introduction of Rapid Spanning Tree Protocol (RSTP) in the latest revision of <xref target="IEEE8021D-2004" /> and Multiple Spanning Tree Protocol (MST) specified in <xref target="IEEE8021Q" /> that increase convergence, stability and load balancing in larger topologies many of the fundamentals of the protocol limit its applicability in large-scale DCs. STP and its newer variants use an active/standby approach to path selection and are therefore hard to deploy in horizontally-scaled topologies as described in <xref target="clos-topo" />. Further, operators have had many experiences with large failures due to issues caused by improper cabling, misconfiguration, or flawed software on a single device. These failures regularly affected the entire spanning-tree domain and were very hard to troubleshoot due to the nature of the protocol. For these reasons, and since almost all DC traffic is now IP, therefore requiring a Layer 3 routing protocol at the network edge for external connectivity, designs utilizing STP usually fail all of the requirements of large-scale DC operators. Various enhancements to link-aggregation protocols such as <xref target="IEEE8023AD"/>, generally known as Multi-Chassis Link-Aggregation (M-LAG) made it possible to use Layer 2 designs with active-active network paths while relying on STP as the backup for loop prevention. The major downside of this approach is the proprietary nature of such extensions.
         </t>
         <t>
-          It should be noted that building large, horizontally scalable, Layer 2 only networks without STP is possible recently through the introduction of TRILL <xref target="RFC6325" />. TRILL resolves many of the issues STP has for large-scale DC design however currently the maturity of the protocol, limited number of implementations, and requirement for new equipment that supports it has limited its applicability and increased the cost of such designs.
+          It should be noted that building large, horizontally scalable, Layer 2 only networks without STP is possible recently through the introduction of the TRILL protocol in <xref target="RFC6325" />. TRILL resolves many of the issues STP has for large-scale DC design however currently the maturity of the protocol, limited number of implementations, and requirement for new equipment that supports it has limited its applicability and increased the cost of such designs.
         </t>
         <t>
           Finally, neither TRILL nor the M-LAG approach eliminate the fundamental problem of the shared broadcast domain, that is so detrimental to the operations of any Layer 2, Ethernet based solutions.
@@ -430,10 +430,10 @@
           <t>
             <list style="symbols">
               <t>
-                Hide network topology information when advertising paths to WAN routers, i.e. remove <xref target="RFC6996">Private Use ASNs</xref> from the AS_PATH attribute. This is typically done to avoid ASN number collisions between different data centers and also to provide a uniform AS_PATH length to the WAN for purposes of WAN ECMP to Anycast prefixes originated in the topology. An implementation specific BGP feature typically called "Remove Private AS" is commonly used to accomplish this. Depending on implementation, the feature should strip a contiguous sequence of Private Use ASNs found in AS_PATH attribute prior to advertising the path to a neighbor. This assumes that all ASNs used for intra data center numbering are from the Private Use ranges. The process for stripping the Private Use ASNs is not currently standardized, but most implementations commonly follow the logic described in <xref target="REMOVE-PRIVATE-AS"/> vendor's document.
+                Hide network topology information when advertising paths to WAN routers, i.e. remove <xref target="RFC6996">Private Use ASNs</xref> from the AS_PATH attribute. This is typically done to avoid ASN number collisions between different data centers and also to provide a uniform AS_PATH length to the WAN for purposes of WAN ECMP to Anycast prefixes originated in the topology. An implementation specific BGP feature typically called "Remove Private AS" is commonly used to accomplish this. Depending on implementation, the feature should strip a contiguous sequence of Private Use ASNs found in AS_PATH attribute prior to advertising the path to a neighbor. This assumes that all ASNs used for intra data center numbering are from the Private Use ranges. The process for stripping the Private Use ASNs is not currently standardized, but most implementations commonly follow the logic described in this vendor's document <xref target="REMOVE-PRIVATE-AS" />.
               </t>
               <t>
-                Originate a default route to the data center devices. This is the only place where default route can be originated, as route summarization is risky for the "scale-out" topology. Alternatively, Border Routers may simply relay the default route learned from WAN routers. Advertising the default route from Border Routers requires that all Border Routers be fully connected to the WAN Routers upstream, to provide resistance to a single-link failure causing the black-holing of traffic. To prevent chance of operator or implementation error that may impact EBGP sessions to the WAN routers simultaneously (although these scenarios are not planned for by many operators since they represents a multiple failure) it is more desirable to take this approach rather than introducing the default route via complicated <xref target="CONDITIONALROUTE">conditional route origination schemes</xref> provided by some implementations.
+                Originate a default route to the data center devices. This is the only place where default route can be originated, as route summarization is risky for the "scale-out" topology. Alternatively, Border Routers may simply relay the default route learned from WAN routers. Advertising the default route from Border Routers requires that all Border Routers be fully connected to the WAN Routers upstream, to provide resistance to a single-link failure causing the black-holing of traffic. To prevent chance of operator or implementation error that may impact EBGP sessions to the WAN routers simultaneously (although these scenarios are not planned for by many operators since they represents a multiple failure) it is more desirable to take this approach rather than introducing the default route via complicated conditional route origination schemes provided by some implementations <xref target="CONDITIONALROUTE" />.
               </t>
             </list>
           </t>
@@ -526,7 +526,7 @@
           Relying solely on BGP keep-alive packets may result in high convergence delays, in the order of multiple seconds (on many BGP implementations the minimum configurable BGP hold timer value is three seconds). However, many BGP implementations can shut down local EBGP peering sessions in response to the "link down" event for the outgoing interface used for BGP peering. This feature is sometimes called as "fast fallover". Since links in modern data centers are often point-to-point fiber connections, a physical interface failure is often detected in milliseconds and subsequently triggers a BGP re-convergence.
         </t>
         <t>
-          Ethernet technologies may support failure signaling or detection standards such as <xref target="IEEE8021AG" /> and <xref target="IEEE8023AH" />, which may make failure detection more robust. Alternatively, some platforms may support <xref target="RFC5880">Bidirectional Forwarding Detection (BFD)</xref> to allow for sub-second failure detection and fault signaling to the BGP process. However, use of either of these presents additional requirements to vendor software and possibly hardware, and may contradict REQ1.  Until recently with <xref target="RFC7130" />, BFD also did not allow detection of a single member link failure on a LAG, which would limit's it's usefulness in some designs.
+          Ethernet technologies may support failure signaling or detection standards such as Connectivity Fault Management (CFM) as described in <xref target="IEEE8021Q" />, which may make failure detection more robust. Alternatively, some platforms may support <xref target="RFC5880">Bidirectional Forwarding Detection (BFD)</xref> to allow for sub-second failure detection and fault signaling to the BGP process. However, use of either of these presents additional requirements to vendor software and possibly hardware, and may contradict REQ1.  Until recently with <xref target="RFC7130" />, BFD also did not allow detection of a single member link failure on a LAG, which would limit's it's usefulness in some designs.
         </t>
       </section>
       <section title="Event Propagation Timing" toc="default">
@@ -668,7 +668,7 @@
     </section>
     <section title="Acknowledgements" toc="default">
       <t>
-        This publication summarizes work of many people who participated in developing, testing and deploying the proposed network design, some of whom were George Chen, Parantap Lahiri, Dave Maltz, Edet Nkposong, Robert Toomey, and Lihua Yuan. Authors would also like to thank Linda Dunbar, Susan Hares, Russ White and Robert Raszuk for reviewing the document and providing valuable feedback and Mary Mitchell for grammar and style suggestions.
+        This publication summarizes work of many people who participated in developing, testing and deploying the proposed network design, some of whom were George Chen, Parantap Lahiri, Dave Maltz, Edet Nkposong, Robert Toomey, and Lihua Yuan. Authors would also like to thank Linda Dunbar, Susan Hares, Danny McPherson, Russ White and Robert Raszuk for reviewing the document and providing valuable feedback and Mary Mitchell for grammar and style suggestions.
       </t>
     </section>
   </middle>
@@ -696,7 +696,7 @@
 
       <reference anchor="CLOS1953" target="">
         <front>
-          <title>A Study of Non-Blocking Switching Networks</title>
+          <title>A Study of Non-Blocking Switching Networks: Bell System Technical Journal Vol. 32(2)</title>
           <author initials="C" surname="Clos" fullname="Charles Clos">
             <organization>Bell Labs Technical Journal</organization>
           </author>
@@ -725,13 +725,22 @@
           <date month="January" year="2009" />
         </front>
       </reference>
-      <reference anchor="IEEE8021D" target="">
+      <reference anchor="IEEE8021D-1990" target="">
         <front>
           <title>IEEE Standard for Local and Metropolitan Area Networks—Media access control (MAC) Bridges</title>
           <author surname="IEEE 802.1D" fullname="IEEE 802.1D">
             <organization />
           </author>
-          <date month="June" year="2004" />
+          <date month="May" year="1990" />
+        </front>
+      </reference>
+      <reference anchor="IEEE8021D-2004" target="">
+        <front>
+          <title>IEEE Standard for Local and Metropolitan Area Networks—Media access control (MAC) Bridges</title>
+          <author surname="IEEE 802.1D" fullname="IEEE 802.1D">
+            <organization />
+          </author>
+          <date month="February" year="2004" />
         </front>
       </reference>
       <reference anchor="IEEE8021Q" target="">
@@ -741,24 +750,6 @@
             <organization />
           </author>
           <date month="December" year="2014" />
-        </front>
-      </reference>
-      <reference anchor="IEEE8021AG" target="">
-        <front>
-          <title>IEEE Standard for Local and metropolitan area networks - Media Access Control (MAC) Bridges and Virtual Bridged Local Area Networks</title>
-          <author surname="IEEE 802.1Q" fullname="IEEE 802.1Q">
-            <organization />
-          </author>
-          <date month="October" year="2012" />
-        </front>
-      </reference>
-      <reference anchor="IEEE8023AH" target="">
-        <front>
-          <title>IEEE Standard for Information technology - Local and metropolitan area networks - Carrier sense multiple access with collision detection (CSMA/CD) access method and physical layer specifications</title>
-          <author surname="IEEE 802.3" fullname="IEEE 802.3">
-            <organization />
-          </author>
-          <date month="December" year="2008" />
         </front>
       </reference>
       <reference anchor="INTERCON" target="">
@@ -793,7 +784,7 @@
         <front>
           <title>Autonomous System (AS) Numbers</title>
           <author surname="IANA" fullname="IANA"><organization/></author>
-          <date month="April" year="2015"/>
+          <date month="June" year="2015"/>
         </front>
       </reference>
       <reference anchor="IEEE8023AD" target="">
