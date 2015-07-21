@@ -35,15 +35,7 @@
       </address>
     </author>
     <author role="editor" initials="J." surname="Mitchell" fullname="Jon Mitchell">
-      <organization>Google</organization>
       <address>
-        <postal>
-          <street>1600 Amphitheatre Parkway</street>
-          <city>Mountain View</city>
-          <region>CA</region>
-          <code>94043</code>
-          <country>US</country>
-        </postal>
         <email>jrmitche@puck.nether.net</email>
       </address>
     </author>
