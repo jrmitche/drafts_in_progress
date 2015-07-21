@@ -4,7 +4,7 @@
 <?rfc compact="yes"?>
 <?rfc subcompact="no"?>
 <?rfc symrefs="yes" ?>
-<rfc category="info" ipr="trust200902" docName="draft-ietf-rtgwg-bgp-routing-large-dc-03" obsoletes="" updates="" submissionType="IETF" xml:lang="en">
+<rfc category="info" ipr="trust200902" docName="draft-ietf-rtgwg-bgp-routing-large-dc-04" obsoletes="" updates="" submissionType="IETF" xml:lang="en">
   <front>
     <title abbrev="draft-ietf-rtgwg-bgp-routing-large-dc">Use of BGP for routing in large-scale data centers</title>
     <author initials="P." surname="Lapukhov" fullname="Petr Lapukhov">
@@ -699,7 +699,7 @@
         <front>
           <title>Apache HaDoop</title>
           <author surname="Apache" fullname="Apache"><organization/></author>
-          <date month="June" year="2015"/>
+          <date month="July" year="2015"/>
         </front>
       </reference>
       <reference anchor="GREENBERG2009" target="">
@@ -776,7 +776,7 @@
         <front>
           <title>Autonomous System (AS) Numbers</title>
           <author surname="IANA" fullname="IANA"><organization/></author>
-          <date month="June" year="2015"/>
+          <date month="July" year="2015"/>
         </front>
       </reference>
       <reference anchor="IEEE8023AD" target="">
