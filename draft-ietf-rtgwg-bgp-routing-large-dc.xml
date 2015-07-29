@@ -4,7 +4,7 @@
 <?rfc compact="yes"?>
 <?rfc subcompact="no"?>
 <?rfc symrefs="yes" ?>
-<rfc category="info" ipr="trust200902" docName="draft-ietf-rtgwg-bgp-routing-large-dc-04" obsoletes="" updates="" submissionType="IETF" xml:lang="en">
+<rfc category="info" ipr="trust200902" docName="draft-ietf-rtgwg-bgp-routing-large-dc-05" obsoletes="" updates="" submissionType="IETF" xml:lang="en">
   <front>
     <title abbrev="draft-ietf-rtgwg-bgp-routing-large-dc">Use of BGP for routing in large-scale data centers</title>
     <author initials="P." surname="Lapukhov" fullname="Petr Lapukhov">
@@ -61,7 +61,7 @@
         The design presented in this document is based on operational experience with data centers built to support large-scale distributed software infrastructure, such as a Web search engine. The primary requirements in such an environment are operational simplicity and network stability so that a small group of people can effectively support a significantly sized network.
       </t>
       <t>
-        After experimentation and extensive testing, the authors and their colleagues chose to use an end-to-end routed network infrastructure with <xref target="RFC4271">External BGP (EBGP)</xref> as the only routing protocol for some of its DC deployments. This is in contrast with more traditional DC designs, which may use simple tree topologies and rely on extending Layer 2 domains across multiple network devices. This document elaborates on the requirements that led to this design choice and presents details of the EBGP routing design as well as explores ideas for further enhancements.
+        Experimentation and extensive testing has shown that <xref target="RFC4271">External BGP (EBGP)</xref> is well suited as a stand-alone routing protocol for these type of data center applications. This is in contrast with more traditional DC designs, which may use simple tree topologies and rely on extending Layer 2 domains across multiple network devices. This document elaborates on the requirements that led to this design choice and presents details of the EBGP routing design as well as explores ideas for further enhancements.
       </t>
       <t>
         This document first presents an overview of network design requirements and considerations for large-scale data centers. Then traditional hierarchical data center network topologies are contrasted with <xref target="CLOS1953">Clos networks</xref> that are horizontally scaled out. This is followed by arguments for selecting EBGP with a Clos topology as the most appropriate routing protocol to meet the requirements and the proposed design is described in detail. Finally, the document reviews some additional considerations and design options.
@@ -73,7 +73,7 @@
       </t>
       <section title="Bandwidth and Traffic Patterns" toc="default">
         <t>
-          The primary requirement when building an interconnection network for large number of servers is to accommodate application bandwidth and latency requirements. Until recently it was quite common to see the majority of traffic entering and leaving the data center, commonly referred to as "north-south" traffic. As a result, traditional "tree" topologies were sufficient to accommodate such flows, even with high oversubscription ratios between the layers of the network. If more bandwidth was required, it was added by "scaling up" the network elements, e.g. by upgrading the device's linecards or fabrics or replacing the device with one with higher port density.
+          The primary requirement when building an interconnection network for large number of servers is to accommodate application bandwidth and latency requirements. Until recently it was quite common to see the majority of traffic entering and leaving the data center, commonly referred to as "north-south" traffic. Traditional "tree" topologies were sufficient to accommodate such flows, even with high oversubscription ratios between the layers of the network. If more bandwidth was required, it was added by "scaling up" the network elements, e.g. by upgrading the device's linecards or fabrics or replacing the device with one with higher port density.
         </t>
         <t>
           Today many large-scale data centers host applications generating significant amounts of server-to-server traffic, which does not egress the DC, commonly referred to as "east-west" traffic. Examples of such applications could be compute clusters such as <xref target="HADOOP">Hadoop</xref>, massive data replication between clusters needed by certain applications, or virtual machine migrations. Scaling traditional tree topologies to match these bandwidth demands becomes either too expensive or impossible due to physical limitations, e.g. port density in a switch.
@@ -86,7 +86,7 @@
         <t>
           <list style="symbols">
             <t>
-              Unifying all network elements, preferably using the same hardware type or even the same device. This allows for volume pricing on bulk purchases.
+              Unifying all network elements, preferably using the same hardware type or even the same device. This allows for volume pricing on bulk purchases and reduced maintenance and sparing costs.
             </t>
             <t>
               Driving costs down using competitive pressures, by introducing multiple network equipment vendors.
@@ -102,7 +102,7 @@
           Operating large-scale infrastructure could be expensive, provided that a larger amount of elements will statistically fail more often. Having a simpler design and operating using a limited software feature set minimizes software issue-related failures.
         </t>
         <t>
-          An important aspect of Operational Expenditure (OPEX) minimization is reducing size of failure domains in the network. Ethernet networks are known to be susceptible to broadcast or unicast traffic storms that can have a dramatic impact on network performance and availability. The use of a fully routed design significantly reduces the size of the data plane failure domains - i.e. limits them to the lowest level in the network hierarchy. However, such designs introduce the problem of distributed control plane failures. This observation calls for simpler control plane protocols that are expected to have less chances of network meltdown. Minimizing software feature requirements as described in the CAPEX section above also reduces testing and training requirements.
+          An important aspect of Operational Expenditure (OPEX) minimization is reducing size of failure domains in the network. Ethernet networks are known to be susceptible to broadcast or unicast traffic storms that can have a dramatic impact on network performance and availability. The use of a fully routed design significantly reduces the size of the data plane failure domains - i.e. limits them to the lowest level in the network hierarchy. However, such designs introduce the problem of distributed control plane failures. This observation calls for simpler and less control plane protocols to reduce protocol interaction issues, reducing the chance of a network meltdown. Minimizing software feature requirements as described in the CAPEX section above also reduces testing and training requirements.
         </t>
       </section>
       <section title="Traffic Engineering" toc="default">
@@ -199,13 +199,13 @@
           <t>
             <list style="symbols">
               <t>
-                The topology is fully non-blocking (or more accurately: non-interfering) if M &gt;= N and oversubscribed by a factor of N/M otherwise. Here M and N is the uplink and downlink port count respectively, for a Tier-2 switch as shown in <xref target="three-stage-clos" pageno="false" format="default" />.
+                The topology is fully non-blocking, or more accurately non-interfering, if M &gt;= N and oversubscribed by a factor of N/M otherwise. Here M and N is the uplink and downlink port count respectively, for a Tier-2 switch as shown in <xref target="three-stage-clos" pageno="false" format="default" />.
               </t>
               <t>
                 Utilizing this topology requires control and data plane support for ECMP with a fan-out of M or more.
               </t>
               <t>
-                Tier-1 switches have exactly one path to every server in this topology. This is an important property that makes route summarization impossible in this topology (see <xref target="adding-route-summarization" /> below).
+                Tier-1 switches have exactly one path to every server in this topology. This is an important property that makes route summarization dangerous in this topology (see <xref target="adding-route-summarization" /> below).
               </t>
               <t>
                 Traffic flowing from server to server is load balanced over all available paths using ECMP.
@@ -257,7 +257,7 @@
             If a data center network size is small, it is possible to reduce the number of switches in Tier-1 or Tier-2 of Clos topology by a power of two. To understand how this could be done, take Tier-1 as an example. Every Tier-2 device connects to a single group of Tier-1 devices. If half of the ports on each of the Tier-1 devices are not being used then it is possible to reduce the number of Tier-1 devices by half and simply map two uplinks from a Tier-2 device to the same Tier-1 device that were previously mapped to different Tier-1 devices. This technique maintains the same bisectional bandwidth while reducing the number of elements in the Tier-1 layer, thus saving on CAPEX. The tradeoff, in this example, is the reduction of maximum DC size in terms of overall server count by half.
           </t>
           <t>
-            In this example, Tier-2 devices will be using two parallel links to connect to each Tier-1 device. If one of these links fails, the other will pick up all traffic of the failed link, possible resulting in heavy congestion and quality of service degradation if the path determination procedure does not take bandwidth amount into account. To avoid this situation, parallel links can be grouped in link aggregation groups (LAGs, such as <xref target="IEEE8023AD"/>) with widely available implementation settings that take the whole "bundle" down upon a single link failure. Equivalent techniques that enforce "fate sharing" on the parallel links can be used in place of LAGs to achieve the same effect. As a result of such fate-sharing, traffic from two or more failed links will be re-balanced over the multitude of remaining paths that equals the number of Tier-1 devices. This example is using two links for simplicity, having more links in a bundle will have less impact on capacity upon a member-link failure.
+            In this example, Tier-2 devices will be using two parallel links to connect to each Tier-1 device. If one of these links fails, the other will pick up all traffic of the failed link, possible resulting in heavy congestion and quality of service degradation if the path determination procedure does not take bandwidth amount into account since the number of upstream Tier-1 devices is likely wider than two. To avoid this situation, parallel links can be grouped in link aggregation groups (LAGs, such as <xref target="IEEE8023AD"/>) with widely available implementation settings that take the whole "bundle" down upon a single link failure. Equivalent techniques that enforce "fate sharing" on the parallel links can be used in place of LAGs to achieve the same effect. As a result of such fate-sharing, traffic from two or more failed links will be re-balanced over the multitude of remaining paths that equals the number of Tier-1 devices. This example is using two links for simplicity, having more links in a bundle will have less impact on capacity upon a member-link failure.
           </t>
         </section>
       </section>
@@ -660,7 +660,7 @@
     </section>
     <section title="Acknowledgements" toc="default">
       <t>
-        This publication summarizes work of many people who participated in developing, testing and deploying the proposed network design, some of whom were George Chen, Parantap Lahiri, Dave Maltz, Edet Nkposong, Robert Toomey, and Lihua Yuan. Authors would also like to thank Linda Dunbar, Susan Hares, Danny McPherson, Russ White and Robert Raszuk for reviewing the document and providing valuable feedback and Mary Mitchell for grammar and style suggestions.
+        This publication summarizes work of many people who participated in developing, testing and deploying the proposed network design, some of whom were George Chen, Parantap Lahiri, Dave Maltz, Edet Nkposong, Robert Toomey, and Lihua Yuan. Authors would also like to thank Linda Dunbar, Susan Hares, Danny McPherson, Robert Raszuk and Russ White for reviewing the document and providing valuable feedback and Mary Mitchell for grammar and style suggestions.
       </t>
     </section>
   </middle>
