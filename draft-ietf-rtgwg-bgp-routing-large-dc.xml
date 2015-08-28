@@ -4,7 +4,7 @@
 <?rfc compact="yes"?>
 <?rfc subcompact="no"?>
 <?rfc symrefs="yes" ?>
-<rfc category="info" ipr="trust200902" docName="draft-ietf-rtgwg-bgp-routing-large-dc-06" obsoletes="" updates="" submissionType="IETF" xml:lang="en">
+<rfc category="info" ipr="trust200902" docName="draft-ietf-rtgwg-bgp-routing-large-dc-07" obsoletes="" updates="" submissionType="IETF" xml:lang="en">
   <front>
     <title abbrev="draft-ietf-rtgwg-bgp-routing-large-dc">Use of BGP for routing in large-scale data centers</title>
     <author initials="P." surname="Lapukhov" fullname="Petr Lapukhov">
@@ -269,10 +269,10 @@
           Originally most data center designs used Spanning-Tree Protocol (STP) originally defined in <xref target="IEEE8021D-1990" /> for loop free topology creation, typically utilizing variants of the traditional DC topology described in <xref target="traditional-topo" />. At the time, many DC switches either did not support Layer 3 routed protocols or supported it with additional licensing fees, which played a part in the design choice. Although many enhancements have been made through the introduction of Rapid Spanning Tree Protocol (RSTP) in the latest revision of <xref target="IEEE8021D-2004" /> and Multiple Spanning Tree Protocol (MST) specified in <xref target="IEEE8021Q" /> that increase convergence, stability and load balancing in larger topologies, many of the fundamentals of the protocol limit its applicability in large-scale DCs. STP and its newer variants use an active/standby approach to path selection and are therefore hard to deploy in horizontally-scaled topologies as described in <xref target="clos-topo" />. Further, operators have had many experiences with large failures due to issues caused by improper cabling, misconfiguration, or flawed software on a single device. These failures regularly affected the entire spanning-tree domain and were very hard to troubleshoot due to the nature of the protocol. For these reasons, and since almost all DC traffic is now IP, therefore requiring a Layer 3 routing protocol at the network edge for external connectivity, designs utilizing STP usually fail all of the requirements of large-scale DC operators. Various enhancements to link-aggregation protocols such as <xref target="IEEE8023AD"/>, generally known as Multi-Chassis Link-Aggregation (M-LAG) made it possible to use Layer 2 designs with active-active network paths while relying on STP as the backup for loop prevention. The major downsides of this approach are the lack of ability to scale linearly past two in most implementations, lack of standards based implementations, and added failure domain risk of keeping state between the devices.
         </t>
         <t>
-          It should be noted that building large, horizontally scalable, Layer 2 only networks without STP is possible recently through the introduction of the TRILL protocol in <xref target="RFC6325" />. TRILL resolves many of the issues STP has for large-scale DC design however due to the lack of maturity of the protocol, the limited number of implementations, and requirement for new equipment that supports it, this has limited its applicability and increased the cost of such designs.
+          It should be noted that building large, horizontally scalable, Layer 2 only networks without STP is possible recently through the introduction of the TRILL protocol in <xref target="RFC6325" />. TRILL resolves many of the issues STP has for large-scale DC design however due to the limited number of implementations, and often the requirement for specific equipment that supports it, this has limited its applicability and increased the cost of such designs.
         </t>
         <t>
-          Finally, neither TRILL nor the M-LAG approach eliminate the fundamental problem of the shared broadcast domain, that is so detrimental to the operations of any Layer 2, Ethernet based solutions.
+          Finally, neither the base TRILL specification nor the M-LAG approach totally eliminate the problem of the shared broadcast domain, that is so detrimental to the operations of any Layer 2, Ethernet based solutions.  Later TRILL extensions have been proposed to solve the this problem statement primarily based on the approaches outlined in <xref target="RFC7067" />, but this even further limits the number of available interoperable implementations that can be used to build a fabric, therefore TRILL based designs have issues meeting REQ2, REQ3, and REQ4.
         </t>
       </section>
       <section title="Hybrid L2/L3 Designs" toc="default">
@@ -313,7 +313,7 @@
           <list style="symbols">
             <t>BGP is perceived as a "WAN only protocol only" and not often considered for enterprise or data center applications.</t>
             <t>BGP is believed to have a "much slower" routing convergence compared to IGPs.</t>
-            <t>BGP deployment within an Autonomous System typically assumes the presence of an IGP for next-hop resolution.</t>
+            <t>Large scale BGP deployments typically utilize an IGP for BGP next-hop resolution as all nodes in the iBGP topology are not directly connected.</t>
             <t>BGP is perceived to require significant configuration overhead and does not support neighbor auto-discovery.</t>
           </list>
         </t>
@@ -324,7 +324,7 @@
               BGP has less complexity in parts of its protocol design - internal data structures and state machine are simpler as compared to most link-state IGPs such as OSPF. For example, instead of implementing adjacency formation, adjacency maintenance and/or flow-control, BGP simply relies on TCP as the underlying transport. This fulfills REQ2 and REQ3.
             </t>
             <t>
-              BGP information flooding overhead is less when compared to link-state IGPs. Since every BGP router calculates and propagates only the best-path selected, a network failure is masked as soon as the BGP speaker finds an alternate path, which exists when highly symmetric topologies, such as Clos, are coupled with EBGP only design. In contrast, the event propagation scope of a link-state IGP is an entire area, regardless of the failure type. This meets REQ3 and REQ4. It is also worth mentioning that all widely deployed link-state IGPs feature periodic refreshes of routing information, even if this rarely causes impact to modern router control planes, while BGP does not expire routing state.
+              BGP information flooding overhead is less when compared to link-state IGPs. Since every BGP router calculates and propagates only the best-path selected, a network failure is masked as soon as the BGP speaker finds an alternate path, which exists when highly symmetric topologies, such as Clos, are coupled with EBGP only design. In contrast, the event propagation scope of a link-state IGP is an entire area, regardless of the failure type.  In this way, BGP better meets REQ3 and REQ4. It is also worth mentioning that all widely deployed link-state IGPs feature periodic refreshes of routing information, even if this rarely causes impact to modern router control planes, while BGP does not expire routing state.
             </t>
             <t>
               BGP supports third-party (recursively resolved) next-hops. This allows for manipulating multipath to be non-ECMP based or forwarding based on application-defined paths, through establishment of a peering session with an application "controller" which can inject routing information into the system, satisfying REQ5. OSPF provides similar functionality using concepts such as "Forwarding Address", but with more difficulty in implementation and far less control of information propagation scope.
@@ -422,7 +422,7 @@
           <t>
             <list style="symbols">
               <t>
-                Hide network topology information when advertising paths to WAN routers, i.e. remove <xref target="RFC6996">Private Use ASNs</xref> from the AS_PATH attribute. This is typically done to avoid ASN number collisions between different data centers and also to provide a uniform AS_PATH length to the WAN for purposes of WAN ECMP to Anycast prefixes originated in the topology. An implementation specific BGP feature typically called "Remove Private AS" is commonly used to accomplish this. Depending on implementation, the feature should strip a contiguous sequence of Private Use ASNs found in AS_PATH attribute prior to advertising the path to a neighbor. This assumes that all ASNs used for intra data center numbering are from the Private Use ranges. The process for stripping the Private Use ASNs is not currently standardized, but most implementations commonly follow the logic described in this vendor's document <xref target="REMOVE-PRIVATE-AS" />.
+                Hide network topology information when advertising paths to WAN routers, i.e. remove <xref target="RFC6996">Private Use ASNs</xref> from the AS_PATH attribute. This is typically done to avoid ASN number collisions between different data centers and also to provide a uniform AS_PATH length to the WAN for purposes of WAN ECMP to Anycast prefixes originated in the topology. An implementation specific BGP feature typically called "Remove Private AS" is commonly used to accomplish this. Depending on implementation, the feature should strip a contiguous sequence of Private Use ASNs found in AS_PATH attribute prior to advertising the path to a neighbor. This assumes that all ASNs used for intra data center numbering are from the Private Use ranges. The process for stripping the Private Use ASNs is not currently standardized, see <xref target="I-D.mitchell-grow-remove-private-as" />.  However most implementations at least follow the logic described in this vendor's document <xref target="VENDOR-REMOVE-PRIVATE-AS" />, which is enough for the design specified.
               </t>
               <t>
                 Originate a default route to the data center devices. This is the only place where default route can be originated, as route summarization is risky for the "scale-out" topology. Alternatively, Border Routers may simply relay the default route learned from WAN routers. Advertising the default route from Border Routers requires that all Border Routers be fully connected to the WAN Routers upstream, to provide resistance to a single-link failure causing the black-holing of traffic. To prevent black-holing in the situation when all of the EBGP sessions to the WAN routers fail simultaneously on a given device it is more desirable to take the "relaying" approach rather than introducing the default route via complicated conditional route origination schemes provided by some implementations <xref target="CONDITIONALROUTE" />.
@@ -487,12 +487,12 @@
           The ECMP requirement implies that the BGP implementation must support multipath fan-out for up to the maximum number of devices directly attached at any point in the topology in upstream or downstream direction. Normally, this number does not exceed half of the ports found on a device in the topology. For example, an ECMP fan-out of 32 would be required when building a Clos network using 64-port devices. The Border Routers may need to have wider fan-out to be able to connect to multitude of Tier-1 devices if route summarization at Border Router level is implemented as described in <xref target="network-edge" />. If a device's hardware does not support wider ECMP, logical link-grouping (link-aggregation at layer 2) could be used to provide "hierarchical" ECMP (Layer 3 ECMP followed by Layer 2 ECMP) to compensate for fan-out limitations. Such approach, however, increases the risk of flow polarization, as less entropy will be available to the second stage of ECMP.
         </t>
         <t>
-          Most BGP implementations declare paths to be equal from ECMP perspective if they match up to and including step (e) in Section 9.1.2.2 of <xref target="RFC4271" />. In the proposed network design there is no underlying IGP, so all IGP costs are assumed to be zero or otherwise the same value across all paths and policies may be applied as necessary to equalize BGP attributes that vary in vendor defaults, such as MED and origin code. For historical reasons it is also useful to not use 0 as the equalized MED value; this and some other useful BGP information is available in <xref target="RFC4277" /> . Routing loops are unlikely due to the BGP best-path selection process which prefers shorter AS_PATH length, and longer paths through the Tier-1 devices which don't allow their own ASN in the path and have the same ASN are also not possible.
+          Most BGP implementations declare paths to be equal from an ECMP perspective if they match up to and including step (e) in Section 9.1.2.2 of <xref target="RFC4271" />. In the proposed network design there is no underlying IGP, so all IGP costs are assumed to be zero or otherwise the same value across all paths and policies may be applied as necessary to equalize BGP attributes that vary in vendor defaults, such as MED and origin code. For historical reasons it is also useful to not use 0 as the equalized MED value; this and some other useful BGP information is available in <xref target="RFC4277" /> . Routing loops are unlikely due to the BGP best-path selection process which prefers shorter AS_PATH length, and longer paths through the Tier-1 devices which don't allow their own ASN in the path and have the same ASN are also not possible.
         </t>
       </section>
       <section title="BGP ECMP over Multiple ASNs" toc="default">
         <t>
-          For application load balancing purposes it is desirable to have the same prefix advertised from multiple Tier-3 devices. From the perspective of other devices, such a prefix would have BGP paths with different AS_PATH attribute values, while having the same AS_PATH attribute lengths. Therefore, BGP implementations must support load sharing over above-mentioned paths. This feature is sometimes known as "multipath relax" and effectively allows for ECMP to be done across different neighboring ASNs if all other attributes are equal as described in the previous section.
+          For application load balancing purposes it is desirable to have the same prefix advertised from multiple Tier-3 devices. From the perspective of other devices, such a prefix would have BGP paths with different AS_PATH attribute values, while having the same AS_PATH attribute lengths. Therefore, BGP implementations must support load sharing over above-mentioned paths. This feature is sometimes known as "multipath relax" or "multipath multiple-as" and effectively allows for ECMP to be done across different neighboring ASNs if all other attributes are equal as already described in the previous section.
         </t>
       </section>
       <section title="Weighted ECMP" toc="default">
@@ -526,7 +526,7 @@
           In the proposed design the impact of BGP Minimum Route Advertisement Interval (MRAI) timer (See section 9.2.1.1 of <xref target="RFC4271" pageno="false" format="default" />) should be considered. Per the standard it is required for BGP implementations to space out consecutive BGP UPDATE messages by at least MRAI seconds, which is often a configurable value. The initial BGP UPDATE messages after an event carrying withdrawn routes are commonly not affected by this timer. The MRAI timer may present significant convergence delays when a BGP speaker "waits" for the new path to be learned from its peers and has no local backup path information.
         </t>
         <t>
-          In a Clos topology each EBGP speaker has either one path or N paths for the same prefix, where N is a significantly large number, e.g. N=32 (the ECMP fan-out). Therefore, if a path fails there is either no backup path at all (e.g. from perspective of a Tier-2 switch losing link to a Tier-3 device), or the backup is readily available in BGP Loc-RIB (e.g. from perspective of a Tier-2 device losing link to a Tier-1 switch). In the former case, the BGP withdrawal announcement will propagate un-delayed and trigger re-convergence on affected devices. In the latter case, the best-path will be re-evaluated and the local ECMP group corresponding to the new next-hop set changed.  If the BGP path was the best-path selected previously, an "implicit withdraw" will be sent via a BGP UPDATE message as described as Option b in Section 3.1 of <xref target="RFC4271" /> due to the BGP AS_PATH attribute changing.
+          In a Clos topology each EBGP speaker typically has either one path (Tier-2 devices don't accept paths from other Tier-2 in the same cluster due to same ASN) or N paths for the same prefix, where N is a significantly large number, e.g. N=32 (the ECMP fan-out to the next Tier). Therefore, if a link fails to another device from which a path is received there is either no backup path at all (e.g. from perspective of a Tier-2 switch losing link to a Tier-3 device), or the backup is readily available in BGP Loc-RIB (e.g. from perspective of a Tier-2 device losing link to a Tier-1 switch). In the former case, the BGP withdrawal announcement will propagate un-delayed and trigger re-convergence on affected devices. In the latter case, the best-path will be re-evaluated and the local ECMP group corresponding to the new next-hop set changed.  If the BGP path was the best-path selected previously, an "implicit withdraw" will be sent via a BGP UPDATE message as described as Option b in Section 3.1 of <xref target="RFC4271" /> due to the BGP AS_PATH attribute changing.
         </t>
       </section>
       <section title="Impact of Clos Topology Fan-outs" toc="default">
@@ -681,10 +681,12 @@
       <?rfc include="reference.RFC.6769.xml"?>
       <?rfc include="reference.RFC.6774.xml"?>
       <?rfc include="reference.RFC.6793.xml"?>
+      <?rfc include="reference.RFC.7067.xml"?>	  
       <?rfc include="reference.RFC.7130.xml"?>	  
       <?rfc include="reference.RFC.7196.xml"?>	  
       <?rfc include="reference.I-D.ietf-idr-add-paths"?>
       <?rfc include="reference.I-D.ietf-idr-link-bandwidth"?>
+      <?rfc include="reference.I-D.mitchell-grow-remove-private-as"?>
 
       <reference anchor="CLOS1953" target="">
         <front>
@@ -797,7 +799,7 @@
           <date month="February" year="2015" />
         </front>
       </reference>
-      <reference anchor="REMOVE-PRIVATE-AS" target="http://www.cisco.com/en/US/tech/tk365/technologies_tech_note09186a0080093f27.shtml">
+      <reference anchor="VENDOR-REMOVE-PRIVATE-AS" target="http://www.cisco.com/en/US/tech/tk365/technologies_tech_note09186a0080093f27.shtml">
         <front>
             <title>Removing Private Autonomous System Numbers in BGP</title>
             <author surname="Cisco Systems" fullname="Cisco Systems">
