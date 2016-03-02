@@ -39,7 +39,7 @@
         <email>jrmitche@puck.nether.net</email>
       </address>
     </author>
-    <date year="2015"/>
+    <date year="2016"/>
     <area>Routing</area>
     <workgroup>Routing Area Working Group</workgroup>
     <keyword>Internet Draft</keyword>
@@ -701,7 +701,7 @@
         <front>
           <title>Apache HaDoop</title>
           <author surname="Apache" fullname="Apache"><organization/></author>
-          <date month="August" year="2015"/>
+          <date month="August" year="2016"/>
         </front>
       </reference>
       <reference anchor="GREENBERG2009" target="">
@@ -778,7 +778,7 @@
         <front>
           <title>Autonomous System (AS) Numbers</title>
           <author surname="IANA" fullname="IANA"><organization/></author>
-          <date month="August" year="2015"/>
+          <date month="August" year="2016"/>
         </front>
       </reference>
       <reference anchor="IEEE8023AD" target="">
@@ -796,7 +796,7 @@
             <author surname="Cisco Systems" fullname="Cisco Systems">
               <organization />
             </author>
-          <date month="February" year="2015" />
+          <date month="February" year="2016" />
         </front>
       </reference>
       <reference anchor="VENDOR-REMOVE-PRIVATE-AS" target="http://www.cisco.com/en/US/tech/tk365/technologies_tech_note09186a0080093f27.shtml">
