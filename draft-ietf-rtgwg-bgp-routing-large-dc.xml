@@ -644,7 +644,7 @@
           One way to overcome this limitation is by using the DNS subsystem to create the "reverse" entries for these point-to-point IP addresses pointing to the same name as the loopback address.  The connectivity then can be made by resolving this name to the "primary" IP address of the devices, e.g., its Loopback interface, which is always advertised into BGP. However, this creates a dependency on the DNS subsystem, which may be unavailable during an outage.
         </t>
         <t>
-          Another option is to make the network device perform IP address masquerading, that is rewriting the source IP addresses of the appropriate ICMP messages sent by the device with the "primary" IP address of the device. Specifically, the ICMP Destination Unreachable Message (type 3) codes 3 (port unreachable) and ICMP Time Exceeded (type 11) code 0, which are required for correct operation of the "traceroute" tool. With this modification, the "traceroute" probes sent to the devices will always be sent back with the "primary" IP address as the source, allowing the operator to discover the "reachable" IP address of the box. This has the downside of hiding the address of the "entry point" into the device.
+          Another option is to make the network device perform IP address masquerading, that is rewriting the source IP addresses of the appropriate ICMP messages sent by the device with the "primary" IP address of the device. Specifically, the ICMP Destination Unreachable Message (type 3) codes 3 (port unreachable) and ICMP Time Exceeded (type 11) code 0, which are required for correct operation of the "traceroute" tool. With this modification, the "traceroute" probes sent to the devices will always be sent back with the "primary" IP address as the source, allowing the operator to discover the "reachable" IP address of the box. This has the downside of hiding the address of the "entry point" into the device.  If the devices support <xref target="RFC5837" />, this may allow the best of both worlds by providing the information about the incoming interface even if the return address is the "primary" IP address.
         </t>
       </section> 
     </section>
@@ -677,6 +677,7 @@
       <?rfc include="reference.RFC.4277.xml"?>
       <?rfc include="reference.RFC.4786.xml"?>
       <?rfc include="reference.RFC.5082.xml"?>
+      <?rfc include="reference.RFC.5837.xml"?>
       <?rfc include="reference.RFC.5880.xml"?>
       <?rfc include="reference.RFC.6325.xml"?>
       <?rfc include="reference.RFC.6769.xml"?>
