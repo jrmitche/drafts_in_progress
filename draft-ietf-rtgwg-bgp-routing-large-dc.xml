@@ -4,7 +4,7 @@
 <?rfc compact="yes"?>
 <?rfc subcompact="no"?>
 <?rfc symrefs="yes" ?>
-<rfc category="info" ipr="trust200902" docName="draft-ietf-rtgwg-bgp-routing-large-dc-10" obsoletes="" updates="" submissionType="IETF" xml:lang="en">
+<rfc category="info" ipr="trust200902" docName="draft-ietf-rtgwg-bgp-routing-large-dc-11" obsoletes="" updates="" submissionType="IETF" xml:lang="en">
   <front>
     <title abbrev="draft-ietf-rtgwg-bgp-routing-large-dc">Use of BGP for routing in large-scale data centers</title>
     <author initials="P." surname="Lapukhov" fullname="Petr Lapukhov">
@@ -650,7 +650,7 @@
     </section>
     <section title="Security Considerations" toc="default">
       <t>
-        The design does not introduce any additional security concerns. General BGP security considerations are discussed in <xref target="RFC4271" /> and <xref target="RFC4272" />. Furthermore, the Generalized TTL Security Mechanism <xref target="RFC5082" /> could be used to reduce the risk of BGP session spoofing.
+        The design does not introduce any additional security concerns. General BGP security considerations are discussed in <xref target="RFC4271" /> and <xref target="RFC4272" />. Since a DC is a single operator domain, this document assumes that edge filtering is in place to prevent attacks against the BGP sessions themselves from outside the perimeter of the DC.  This may be a more feasible option for most deployments than key management for TCP-MD5 as described in <xref target="RFC2385" />. The Generalized TTL Security Mechanism <xref target="RFC5082" /> could also be used to further reduce the risk of BGP session spoofing.
       </t>
     </section>
     <section title="IANA Considerations" toc="default">
@@ -671,6 +671,7 @@
     </references>
     <references title="Informative References">
       <?rfc include="reference.RFC.2328.xml"?>
+      <?rfc include="reference.RFC.2385.xml"?>
       <?rfc include="reference.RFC.2992.xml"?>
       <?rfc include="reference.RFC.4272.xml"?>
       <?rfc include="reference.RFC.4277.xml"?>
@@ -779,7 +780,7 @@
         <front>
           <title>Autonomous System (AS) Numbers</title>
           <author surname="IANA" fullname="IANA"><organization/></author>
-          <date month="April" year="2016"/>
+          <date month="June" year="2016"/>
         </front>
       </reference>
       <reference anchor="IEEE8023AD" target="">
@@ -797,7 +798,7 @@
             <author surname="Cisco Systems" fullname="Cisco Systems">
               <organization />
             </author>
-          <date month="April" year="2016" />
+          <date month="June" year="2016" />
         </front>
       </reference>
       <reference anchor="VENDOR-REMOVE-PRIVATE-AS" target="http://www.cisco.com/en/US/tech/tk365/technologies_tech_note09186a0080093f27.shtml">
