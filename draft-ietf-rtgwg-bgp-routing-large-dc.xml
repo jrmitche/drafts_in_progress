@@ -652,7 +652,7 @@
     </section>
     <section title="Security Considerations" toc="default">
       <t>
-        The design does not introduce any additional security concerns. General BGP security considerations are discussed in <xref target="RFC4271" /> and <xref target="RFC4272" />. Since a DC is a single operator domain, this document assumes that edge filtering is in place to prevent attacks against the BGP sessions themselves from outside the perimeter of the DC.  This may be a more feasible option for most deployments than having to deal with key management for TCP-MD5 as described in <xref target="RFC2385" /> or dealing with the lack of implementations available at the time of this document of <xref target="RFC5925 />. The Generalized TTL Security Mechanism <xref target="RFC5082" /> could also be used to further reduce the risk of BGP session spoofing.
+        The design does not introduce any additional security concerns. General BGP security considerations are discussed in <xref target="RFC4271" /> and <xref target="RFC4272" />. Since a DC is a single operator domain, this document assumes that edge filtering is in place to prevent attacks against the BGP sessions themselves from outside the perimeter of the DC.  This may be a more feasible option for most deployments than having to deal with key management for TCP-MD5 as described in <xref target="RFC2385" /> or dealing with the lack of implementations available at the time of this document of <xref target="RFC5925" />. The Generalized TTL Security Mechanism <xref target="RFC5082" /> could also be used to further reduce the risk of BGP session spoofing.
       </t>
     </section>
     <section title="IANA Considerations" toc="default">
