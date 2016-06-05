@@ -55,7 +55,7 @@
   <middle>
     <section title="Introduction" anchor="intro" toc="default">
       <t>
-        This document describes a practical routing design that can be used in a large-scale data center ("DC") design. Such data centers, also known as hyper-scale or warehouse-scale data centers, have a unique attribute of supporting over a hundred thousand servers. In order to accommodate networks of this scale, operators are revisiting networking designs and platforms to address this need.
+        This document describes a practical routing design that can be used in a large-scale data center (DC) design. Such data centers, also known as hyper-scale or warehouse-scale data centers, have a unique attribute of supporting over a hundred thousand servers. In order to accommodate networks of this scale, operators are revisiting networking designs and platforms to address this need.
       </t>
       <t>
         The design presented in this document is based on operational experience with data centers built to support large-scale distributed software infrastructure, such as a Web search engine. The primary requirements in such an environment are operational simplicity and network stability so that a small group of people can effectively support a significantly sized network.
@@ -64,7 +64,7 @@
         Experimentation and extensive testing have shown that <xref target="RFC4271">External BGP (EBGP)</xref> is well suited as a stand-alone routing protocol for these type of data center applications. This is in contrast with more traditional DC designs, which may use simple tree topologies and rely on extending Layer 2 domains across multiple network devices. This document elaborates on the requirements that led to this design choice and presents details of the EBGP routing design as well as explores ideas for further enhancements.
       </t>
       <t>
-        This document first presents an overview of network design requirements and considerations for large-scale data centers. Then traditional hierarchical data center network topologies are contrasted with <xref target="CLOS1953">Clos networks</xref> that are horizontally scaled out. This is followed by arguments for selecting EBGP with a Clos topology as the most appropriate routing protocol to meet the requirements and the proposed design is described in detail. Finally, this document reviews some additional considerations and design options.
+        This document first presents an overview of network design requirements and considerations for large-scale data centers. Then traditional hierarchical data center network topologies are contrasted with <xref target="CLOS1953">Clos networks</xref> that are horizontally scaled out. This is followed by arguments for selecting EBGP with a Clos topology as the most appropriate routing protocol to meet the requirements and the proposed design is described in detail. Finally, this document reviews some additional considerations and design options.  A thorough understanding of BGP is assumed by a reader planning on deploying the design described within the document.
       </t>
     </section>
     <section title="Network Design Requirements" toc="default">
@@ -154,6 +154,7 @@
   &lt;- Servers -&gt;        &lt;- Servers -&gt;                                
           </artwork>
         </figure>
+        <t>Unfortunately, as noted previously, it is not possible to scale a tree based design to a large enough degree to handle large-scale designs due to the inability to be able to acquire Tier-1 devices with a large enough port density to sufficiently scale Tier-2.  Also, continous upgrades or replacement of the upper tier devices are required as deployment size or bandwidth requirements increase which is operationally complex.  For this reason, REQ1 is in place, eliminating this type of design from consideration.
       </section>
       <section title="Clos Network topology" anchor="clos-topo" toc="default">
         <t>This section describes a common design for horizontally scalable topology in large-scale data centers in order to meet REQ1.</t>
@@ -298,7 +299,7 @@
         </t>
       </section>
     </section>
-    <section title="Routing Protocol Selection and Design" toc="default">
+    <section title="Routing Protocol Design" toc="default">
       <t>
         In this section the motivations for using External BGP (EBGP) as the single routing protocol for data center networks having a Layer 3 protocol design and Clos topology are reviewed. Then, a practical approach for designing an EBGP based network is provided.
       </t>
@@ -330,7 +331,7 @@
               BGP supports third-party (recursively resolved) next-hops. This allows for manipulating multipath to be non-ECMP based or forwarding based on application-defined paths, through establishment of a peering session with an application "controller" which can inject routing information into the system, satisfying REQ5. OSPF provides similar functionality using concepts such as "Forwarding Address", but with more difficulty in implementation and far less control of information propagation scope.
             </t>
             <t>
-              Using a well-defined ASN allocation scheme and standard AS_PATH loop detection, "BGP path hunting" (see <xref target="JAKMA2008"/>) can be controlled and complex unwanted paths will be ignored. See <xref target="bgp-config" /> for an example of a working ASN allocation scheme. In a link-state IGP accomplishing the same goal would require multi-(instance/topology/process) support, typically not available in all DC devices and quite complex to configure and troubleshoot. Using a traditional single flooding domain, which most DC designs utilize, under certain failure conditions may pick up unwanted lengthy paths, e.g., traversing multiple Tier-2 devices.
+              Using a well-defined Autonomous System Number (ASN) allocation scheme and standard AS_PATH loop detection, "BGP path hunting" (see <xref target="JAKMA2008"/>) can be controlled and complex unwanted paths will be ignored. See <xref target="bgp-config" /> for an example of a working ASN allocation scheme. In a link-state IGP accomplishing the same goal would require multi-(instance/topology/process) support, typically not available in all DC devices and quite complex to configure and troubleshoot. Using a traditional single flooding domain, which most DC designs utilize, under certain failure conditions may pick up unwanted lengthy paths, e.g., traversing multiple Tier-2 devices.
             </t>
             <t>
               EBGP configuration that is implemented with minimal routing policy is easier to troubleshoot for network reachability issues. In most implementations, it is straightforward to view contents of BGP Loc-RIB and compare it to the router's RIB. Also, in most implementations an operator can view every BGP neighbors Adj-RIB-In and Adj-RIB-Out structures and therefore incoming and outgoing NLRI information can be easily correlated on both sides of a BGP session. Thus, BGP satisfies REQ3.
@@ -391,7 +392,7 @@
             The original range of Private Use ASNs <xref target="RFC6996"/> limited operators to 1023 unique ASNs. Since it is quite likely that the number of network devices may exceed this number, a workaround is required. One approach is to re-use the ASNs assigned to the Tier-3 devices across different clusters. For example, Private Use ASNs 65001, 65002 ... 65032 could be used within every individual cluster and assigned to Tier-3 devices.
           </t>
           <t>
-            To avoid route suppression due to the AS_PATH loop detection mechanism in BGP, upstream EBGP sessions on Tier-3 devices must be configured with the <xref target="ALLOWASIN">"AllowAS In" feature</xref> that allows accepting a device's own ASN in received route advertisements. Introducing this feature does not make it likely for routing loops in the design since the AS_PATH is being added to by routers at each of the topology tiers and AS_PATH length is an early tie breaker in the BGP path selection process. Further loop protection is still in place at the Tier-1 device, which will not accept routes with a path including its own ASN and Tier-2 devices do not have direct connectivity with each other.
+            To avoid route suppression due to the AS_PATH loop detection mechanism in BGP, upstream EBGP sessions on Tier-3 devices must be configured with the <xref target="ALLOWASIN">"AllowAS In" feature</xref> that allows accepting a device's own ASN in received route advertisements. Although this feature is not standarized, it is widely available accross multiple vendors implementations. Introducing this feature does not make routing loops more likely in the design since the AS_PATH is being added to by routers at each of the topology tiers and AS_PATH length is an early tie breaker in the BGP path selection process. Further loop protection is still in place at the Tier-1 device, which will not accept routes with a path including its own ASN and Tier-2 devices do not have direct connectivity with each other.
           </t>
           <t>
             Another solution to this problem would be using Four-Octet ASNs (<xref target="RFC6793"/>), where there are additional Private Use ASNs available, see <xref target="IANA.AS" />. Use of Four-Octet ASNs puts additional protocol complexity in the BGP implementation and should be balanced against the complexity of re-use when considering REQ3 and REQ4. Perhaps more importantly, they are not yet supported by all BGP implementations, which may limit vendor selection of DC equipment. When supported, ensure that deployed implementations are able to remove the Private Use ASNs when <xref target="external-connectivity">external connectivity</xref> to these ASNs is required.
@@ -399,7 +400,7 @@
         </section>
         <section title="Prefix Advertisement" anchor="prefix-advertisement" toc="default">
           <t>
-            A Clos topology features a large number of point-to-point links and associated prefixes. Advertising all of these routes into BGP may create FIB overload in the network devices. Advertising these links also puts additional path computation stress on the BGP control plane for little benefit. There are two possible solutions:
+            A Clos topology features a large number of point-to-point links and associated prefixes. Advertising all of these routes into BGP may create Forwarding Information Base (FIB) overload in the network devices. Advertising these links also puts additional path computation stress on the BGP control plane for little benefit. There are two possible solutions:
           </t>
           <t>
             <list style="symbols">
