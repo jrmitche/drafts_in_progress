@@ -1,0 +1,106 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE rfc SYSTEM "rfc2629.dtd"[]>
+<?rfc toc="yes"?>
+<?rfc compact="yes"?>
+<?rfc subcompact="no"?>
+<?rfc symrefs="yes" ?>
+<rfc category="info" ipr="trust200902" docName="draft-mitchell-idr-large-community-00" obsoletes="" updates="" submissionType="IETF" xml:lang="en">
+  <front>
+    <title abbrev="draft-mitchell-idr-large-community">Reservation of Large Community Values</title>
+    <author initials="J." surname="Mitchell" fullname="Jon Mitchell">
+      <address>
+        <email>jrmitche@puck.nether.net</email>
+      </address>
+    </author>
+    <author initials="J." surname="Snijders" fullname="Job Snijders">
+      <organization abbrev="NTT">NTT Communications</organization>
+      <address>
+        <postal>
+          <street>Theodorus Majofskistraat 100</street>
+          <code>1065 AZ</code>
+          <city>Amsterdam</city>
+          <country>NL></country>
+        </postal>
+      <email>job@ntt.net</email>
+      </address>
+    </author>
+    <date year="2016"/>
+    <area>Routing</area>
+    <workgroup>IDR</workgroup>
+    <keyword>Internet Draft</keyword>
+    <keyword>BGP</keyword>
+    <keyword>Large</keyword>
+    <keyword>Communities</keyword>
+    <abstract>
+      <t>
+        This document creates an IANA registry for Large Community values and specifies which values are currently Reserved and for Private Use.
+      </t>
+    </abstract>
+  </front>
+  <middle>
+    <section title="Introduction" anchor="intro" toc="default">
+      <t>The document <xref target="I-D.ietf-idr-large-community" /> specifies BGP Large Community attribute support for <xref target="RFC4271">BGP</xref> and reserves several values which should not be used as a global Global Administrator value, as well as instruction for the remaining values to be utilized by the owner of the ASN associated with the Global Administrator field.  That document did not specify the IANA registry to be created to make these reservations or the procedures for future assignments out of the reserved values.  This document provides such guidance to IANA.
+      </t>
+    </section>
+    <section title="IANA Considerations" toc="default">
+      <t>IANA has created a new Border Gateway Parameters (BGP) protocols registry called "BGP Large Communities" and populate it with the following information.
+      </t>
+      <t>The following note has been added to the "BGP Large Communities" registry:
+        <list>
+          <t>This registry contains registration procedures based on the first four high-order octets of a BGP Large Community attribute.  Values listed in the table below must specify all 12 octets, high-order first upon allocation.</t>
+        </list>
+      </t>
+      <t />
+      <texttable align="left">
+          <ttcol>Range</ttcol>
+          <ttcol>Registration Procedure</ttcol>
+          <c>0x00000000</c>
+          <c>IETF Review</c>
+          <c>0x00000001-0x0000FFFE</c>
+          <c>Private Use</c>
+          <c>0x0000FFFF</c>
+          <c>IETF Review</c>
+          <c>0x00010000-0xFFFFFFFE</c>
+          <c>Private Use</c>
+          <c>0xFFFFFFFF-0xFFFFFFFF</c>
+          <c>IETF Review</c>
+      </texttable>
+      <t />
+      <texttable align="left">
+          <ttcol>Attribute Value</ttcol>
+          <ttcol>Name</ttcol>
+          <ttcol>Reference</ttcol>
+          <c>0x000000000000000000000000-0x00000000FFFFFFFFFFFFFFFF</c>
+          <c>Unassigned</c>
+          <c></c>
+          <c>0x000000010000000000000000-0x0000FFFEFFFFFFFFFFFFFFFF</c>
+          <c>Reserved for Private Use</c>
+          <c>draft-ietf-idr-large-community</c>
+          <c>0x0000FFFF0000000000000000-0x0000FFFFFFFFFFFFFFFFFFFF</c>
+          <c>Unassigned</c>
+          <c></c>
+          <c>0x000100000000000000000000-0xFFFFFFFEFFFFFFFFFFFFFFFF</c>
+          <c>Reserved for Private Use</c>
+          <c>draft-ietf-idr-large-community</c>
+          <c>0xFFFFFFFF0000000000000000-0xFFFFFFFFFFFFFFFFFFFFFFFF</c>
+          <c>Unassigned</c>
+          <c></c>
+      </texttable>
+      <t>
+        The reference for the Reserved values for Private Use should be listed as <xref target="I-D.ietf-idr-large-community" />, but it was not included in the text above due to line length limits in IETF text format.
+      </t>
+    </section>
+    <section title="Acknowledgements" toc="default">
+      <t>Thanks to Jakob Heitz for participating in some of the initial discussion for the need of a registry as well as to all authors and IDR working group who contributed to the original BGP Large Community disucssions.
+      </t>
+    </section>
+  </middle>
+  <back>
+    <references title="Normative References">
+      <?rfc include="reference.I-D.ietf-idr-large-community"?>
+    </references>
+    <references title="Informative References">
+      <?rfc include="reference.RFC.4271.xml"?>
+    </references> 
+  </back>
+</rfc>
