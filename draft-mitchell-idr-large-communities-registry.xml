@@ -25,12 +25,14 @@
                     <street>Theodorus Majofskistraat 100</street>
                     <code>1065 AZ</code>
                     <city>Amsterdam</city>
-                    <country>NL></country>
+                    <country>The Netherlands</country>
                 </postal>
                 <email>job@ntt.net</email>
             </address>
         </author>
-        <date year="2016"/>
+
+        <date />
+
         <area>Routing</area>
         <workgroup>IDR</workgroup>
         <keyword>Internet Draft</keyword>
@@ -39,9 +41,9 @@
         <keyword>Communities</keyword>
         <abstract>
             <t>
-                This document creates an IANA registry for BGP Large Community
-                values and specifies which values are currently Reserved and
-                for Private Use.
+                This document creates an IANA registry for BGP Large
+                Community values and specifies which values are currently
+                Reserved and for Private Use.
             </t>
         </abstract>
     </front>
@@ -127,7 +129,7 @@
                 Thanks to Jakob Heitz for participating in some of the initial
                 discussion for the need of a registry as well as to all authors
                 and IDR working group who contributed to the original BGP Large
-                Community disucssions.
+                Communities disucssions.
             </t>
         </section>
     </middle>
