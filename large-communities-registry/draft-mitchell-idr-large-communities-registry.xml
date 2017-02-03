@@ -41,7 +41,7 @@
         <keyword>Communities</keyword>
         <abstract>
             <t>
-                This document creates an IANA registry for BGP Large
+                This document requests IANA to create a registry for BGP Large
                 Community values and specifies which values are currently
                 Reserved and for Private Use.
             </t>
@@ -64,7 +64,7 @@
         </section>
         <section title="IANA Considerations" toc="default">
             <t>
-                IANA has created a new Border Gateway Parameters (BGP)
+                IANA is requested to create a new Border Gateway Parameters (BGP)
                 protocols registry called "BGP Large Communities" and populate
                 it with the following information.
             </t>
@@ -87,13 +87,13 @@
                 <ttcol>Registration Procedure</ttcol>
                 <c>0x00000000</c>
                 <c>IETF Review</c>
-                <c>0x00000001-0x0000FFFE</c>
+                <c>0x00000001 - 0x0000FFFE</c>
                 <c>Private Use</c>
                 <c>0x0000FFFF</c>
                 <c>IETF Review</c>
-                <c>0x00010000-0xFFFFFFFE</c>
+                <c>0x00010000 - 0xFFFFFFFE</c>
                 <c>Private Use</c>
-                <c>0xFFFFFFFF-0xFFFFFFFF</c>
+                <c>0xFFFFFFFF - 0xFFFFFFFF</c>
                 <c>IETF Review</c>
             </texttable>
             <t />
@@ -101,19 +101,19 @@
                 <ttcol>Attribute Value</ttcol>
                 <ttcol>Name</ttcol>
                 <ttcol>Reference</ttcol>
-                <c>0x000000000000000000000000-0x00000000FFFFFFFFFFFFFFFF</c>
+                <c>0x000000000000000000000000 - 0x00000000FFFFFFFFFFFFFFFF</c>
                 <c>Unassigned</c>
                 <c></c>
-                <c>0x000000010000000000000000-0x0000FFFEFFFFFFFFFFFFFFFF</c>
+                <c>0x000000010000000000000000 - 0x0000FFFEFFFFFFFFFFFFFFFF</c>
                 <c>Reserved for Private Use</c>
                 <c>draft-ietf-idr-large-community</c>
-                <c>0x0000FFFF0000000000000000-0x0000FFFFFFFFFFFFFFFFFFFF</c>
+                <c>0x0000FFFF0000000000000000 - 0x0000FFFFFFFFFFFFFFFFFFFF</c>
                 <c>Unassigned</c>
                 <c></c>
-                <c>0x000100000000000000000000-0xFFFFFFFEFFFFFFFFFFFFFFFF</c>
+                <c>0x000100000000000000000000 - 0xFFFFFFFEFFFFFFFFFFFFFFFF</c>
                 <c>Reserved for Private Use</c>
                 <c>draft-ietf-idr-large-community</c>
-                <c>0xFFFFFFFF0000000000000000-0xFFFFFFFFFFFFFFFFFFFFFFFF</c>
+                <c>0xFFFFFFFF0000000000000000 - 0xFFFFFFFFFFFFFFFFFFFFFFFF</c>
                 <c>Unassigned</c>
                 <c></c>
             </texttable>
@@ -129,7 +129,7 @@
                 Thanks to Jakob Heitz for participating in some of the initial
                 discussion for the need of a registry as well as to all authors
                 and IDR working group who contributed to the original BGP Large
-                Communities disucssions.
+                Communities discussions.
             </t>
         </section>
     </middle>

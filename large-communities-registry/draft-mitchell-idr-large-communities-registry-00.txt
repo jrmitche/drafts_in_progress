@@ -5,8 +5,8 @@
 IDR                                                          J. Mitchell
 Internet-Draft
 Intended status: Informational                               J. Snijders
-Expires: June 5, 2017                                                NTT
-                                                        December 2, 2016
+Expires: August 7, 2017                                              NTT
+                                                        February 3, 2017
 
 
               Reservation of BGP Large Communities Values
@@ -14,9 +14,9 @@ Expires: June 5, 2017                                                NTT
 
 Abstract
 
-   This document creates an IANA registry for BGP Large Community values
-   and specifies which values are currently Reserved and for Private
-   Use.
+   This document requests IANA to create a registry for BGP Large
+   Community values and specifies which values are currently Reserved
+   and for Private Use.
 
 Status of This Memo
 
@@ -33,11 +33,11 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on June 5, 2017.
+   This Internet-Draft will expire on August 7, 2017.
 
 Copyright Notice
 
-   Copyright (c) 2016 IETF Trust and the persons identified as the
+   Copyright (c) 2017 IETF Trust and the persons identified as the
    document authors.  All rights reserved.
 
    This document is subject to BCP 78 and the IETF Trust's Legal
@@ -53,9 +53,9 @@ Copyright Notice
 
 
 
-Mitchell & Snijders       Expires June 5, 2017                  [Page 1]
+Mitchell & Snijders      Expires August 7, 2017                 [Page 1]
 
-Internet-Draft Reservation of BGP Large Communities Values December 2016
+Internet-Draft Reservation of BGP Large Communities Values February 2017
 
 
 Table of Contents
@@ -82,9 +82,9 @@ Table of Contents
 
 2.  IANA Considerations
 
-   IANA has created a new Border Gateway Parameters (BGP) protocols
-   registry called "BGP Large Communities" and populate it with the
-   following information.
+   IANA is requested to create a new Border Gateway Parameters (BGP)
+   protocols registry called "BGP Large Communities" and populate it
+   with the following information.
 
    The following note has been added to the "BGP Large Communities"
    registry:
@@ -94,44 +94,47 @@ Table of Contents
       listed in the table below must specify all 12 octets, high-order
       first upon allocation.
 
-   +-----------------------+------------------------+
-   | Range                 | Registration Procedure |
-   +-----------------------+------------------------+
-   | 0x00000000            | IETF Review            |
-   | 0x00000001-0x0000FFFE | Private Use            |
-   | 0x0000FFFF            | IETF Review            |
-   | 0x00010000-0xFFFFFFFE | Private Use            |
-   | 0xFFFFFFFF-0xFFFFFFFF | IETF Review            |
-   +-----------------------+------------------------+
+   +-------------------------+------------------------+
+   | Range                   | Registration Procedure |
+   +-------------------------+------------------------+
+   | 0x00000000              | IETF Review            |
+   | 0x00000001 - 0x0000FFFE | Private Use            |
+   | 0x0000FFFF              | IETF Review            |
+   | 0x00010000 - 0xFFFFFFFE | Private Use            |
+   | 0xFFFFFFFF - 0xFFFFFFFF | IETF Review            |
+   +-------------------------+------------------------+
 
 
 
 
 
 
-Mitchell & Snijders       Expires June 5, 2017                  [Page 2]
+Mitchell & Snijders      Expires August 7, 2017                 [Page 2]
 
-Internet-Draft Reservation of BGP Large Communities Values December 2016
+Internet-Draft Reservation of BGP Large Communities Values February 2017
 
 
-   +-----------------------------------+--------+----------------------+
-   | Attribute Value                   | Name   | Reference            |
-   +-----------------------------------+--------+----------------------+
-   | 0x000000000000000000000000-0x0000 | Unassi |                      |
-   | 0000FFFFFFFFFFFFFFFF              | gned   |                      |
-   | 0x000000010000000000000000-0x0000 | Reserv | draft-ietf-idr-      |
-   | FFFEFFFFFFFFFFFFFFFF              | ed for | large-community      |
-   |                                   | Privat |                      |
-   |                                   | e Use  |                      |
-   | 0x0000FFFF0000000000000000-0x0000 | Unassi |                      |
-   | FFFFFFFFFFFFFFFFFFFF              | gned   |                      |
-   | 0x000100000000000000000000-0xFFFF | Reserv | draft-ietf-idr-      |
-   | FFFEFFFFFFFFFFFFFFFF              | ed for | large-community      |
-   |                                   | Privat |                      |
-   |                                   | e Use  |                      |
-   | 0xFFFFFFFF0000000000000000-0xFFFF | Unassi |                      |
-   | FFFFFFFFFFFFFFFFFFFF              | gned   |                      |
-   +-----------------------------------+--------+----------------------+
+   +-------------------------+-----------+-----------------------------+
+   | Attribute Value         | Name      | Reference                   |
+   +-------------------------+-----------+-----------------------------+
+   | 0x000000000000000000000 | Unassigne |                             |
+   | 000 - 0x00000000FFFFFFF | d         |                             |
+   | FFFFFFFFF               |           |                             |
+   | 0x000000010000000000000 | Reserved  | draft-ietf-idr-large-       |
+   | 000 - 0x0000FFFEFFFFFFF | for       | community                   |
+   | FFFFFFFFF               | Private   |                             |
+   |                         | Use       |                             |
+   | 0x0000FFFF0000000000000 | Unassigne |                             |
+   | 000 - 0x0000FFFFFFFFFFF | d         |                             |
+   | FFFFFFFFF               |           |                             |
+   | 0x000100000000000000000 | Reserved  | draft-ietf-idr-large-       |
+   | 000 - 0xFFFFFFFEFFFFFFF | for       | community                   |
+   | FFFFFFFFF               | Private   |                             |
+   |                         | Use       |                             |
+   | 0xFFFFFFFF0000000000000 | Unassigne |                             |
+   | 000 - 0xFFFFFFFFFFFFFFF | d         |                             |
+   | FFFFFFFFF               |           |                             |
+   +-------------------------+-----------+-----------------------------+
 
    The reference for the Reserved values for Private Use should be
    listed as [I-D.ietf-idr-large-community], but it was not included in
@@ -141,8 +144,8 @@ Internet-Draft Reservation of BGP Large Communities Values December 2016
 
    Thanks to Jakob Heitz for participating in some of the initial
    discussion for the need of a registry as well as to all authors and
-   IDR working group who contributed to the original BGP Large Community
-   disucssions.
+   IDR working group who contributed to the original BGP Large
+   Communities discussions.
 
 4.  References
 
@@ -151,7 +154,7 @@ Internet-Draft Reservation of BGP Large Communities Values December 2016
    [I-D.ietf-idr-large-community]
               Heitz, J., Snijders, J., Patel, K., Bagdonas, I., and N.
               Hilliard, "BGP Large Communities", draft-ietf-idr-large-
-              community-10 (work in progress), December 2016.
+              community-12 (work in progress), January 2017.
 
 4.2.  Informative References
 
@@ -162,12 +165,9 @@ Internet-Draft Reservation of BGP Large Communities Values December 2016
 
 
 
-
-
-
-Mitchell & Snijders       Expires June 5, 2017                  [Page 3]
+Mitchell & Snijders      Expires August 7, 2017                 [Page 3]
 
-Internet-Draft Reservation of BGP Large Communities Values December 2016
+Internet-Draft Reservation of BGP Large Communities Values February 2017
 
 
 Authors' Addresses
@@ -181,7 +181,7 @@ Authors' Addresses
    NTT Communications
    Theodorus Majofskistraat 100
    Amsterdam  1065 AZ
-   NL>
+   The Netherlands
 
    Email: job@ntt.net
 
@@ -221,4 +221,4 @@ Authors' Addresses
 
 
 
-Mitchell & Snijders       Expires June 5, 2017                  [Page 4]
+Mitchell & Snijders      Expires August 7, 2017                 [Page 4]
